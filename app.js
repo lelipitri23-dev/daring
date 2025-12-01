@@ -24,7 +24,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 
 // GLOBAL VARIABLES MIDDLEWARE
-// Middleware ini otomatis mengirim 'siteName' ke SEMUA file .ejs
 app.use((req, res, next) => {
     res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
     res.locals.currentUrl = req.path;
@@ -32,7 +31,7 @@ app.use((req, res, next) => {
 });
 
 // ==========================================
-// 2. MAIN ROUTES
+// 2. MAIN ROUTES (Home, Detail, Read)
 // ==========================================
 
 // HOME PAGE
@@ -45,18 +44,24 @@ app.get('/', async (req, res) => {
         const totalManga = await Manga.countDocuments();
         const totalPages = Math.ceil(totalManga / limit);
 
-        const mangas = await Manga.find()
+        // 1. Ambil Update Terbaru
+        const recents = await Manga.find()
             .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(limit);
+
+        // 2. Ambil Trending (Top Views - Limit 10 untuk Slider)
+        const trending = await Manga.find()
+            .sort({ views: -1 })
+            .limit(10);
             
-        res.render('index', { 
-            mangas,
+        res.render('landing', { 
+            mangas: recents, 
+            trending: trending,
             currentPage: page,
             totalPages: totalPages,
-            title: `${res.locals.siteName} - Baca Komik Bahasa Indonesia`, // Gunakan locals
+            title: `${res.locals.siteName} - Baca Komik Bahasa Indonesia`,
             desc: 'Website download dan baca doujin bahasa indonesia terbaru dan terlengkap.'
-            // HAPUS BARIS SITE_NAME: SITE_NAME DISINI
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -64,7 +69,12 @@ app.get('/', async (req, res) => {
 // DETAIL PAGE
 app.get('/manga/:slug', async (req, res) => {
     try {
-        const manga = await Manga.findOne({ slug: req.params.slug });
+        const manga = await Manga.findOneAndUpdate(
+            { slug: req.params.slug },
+            { $inc: { views: 1 } }, 
+            { new: true } 
+        );
+
         if (!manga) return res.status(404).render('404');
 
         const chapters = await Chapter.find({ manga_id: manga._id }).sort({ chapter_index: 1 });
@@ -73,7 +83,33 @@ app.get('/manga/:slug', async (req, res) => {
             manga,
             chapters,
             title: `${manga.title} Bahasa Indonesia`,
-            desc: `Baca ${manga.metadata.type || 'Komik'} ${manga.title}. Status: ${manga.metadata.status}.`
+            desc: `Baca ${manga.metadata.type ? (manga.metadata.type.type || 'Komik') : 'Komik'} ${manga.title}.`
+        });
+    } catch (err) { res.status(500).send(err.message); }
+});
+
+// ROUTE MANGA LIST (A-Z)
+app.get('/manga-list', async (req, res) => {
+    try {
+        const limit = 20; 
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const totalManga = await Manga.countDocuments();
+        const totalPages = Math.ceil(totalManga / limit);
+
+        const mangas = await Manga.find()
+            .select('title slug thumb metadata.rating metadata.type metadata.status') 
+            .sort({ title: 1 }) 
+            .skip(skip)
+            .limit(limit);
+
+        res.render('manga_list', {
+            mangas,
+            currentPage: page,
+            totalPages: totalPages,
+            title: `Daftar Komik A-Z - Halaman ${page}`,
+            desc: 'Daftar lengkap komik doujinshi dan manga diurutkan berdasarkan abjad A-Z.'
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -114,15 +150,27 @@ app.get('/search', async (req, res) => {
         const keyword = req.query.q;
         if (!keyword) return res.redirect('/');
 
-        const mangas = await Manga.find({ 
-            title: { $regex: keyword, $options: 'i' } 
-        }).limit(30);
+        const limit = 20;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const query = { title: { $regex: keyword, $options: 'i' } };
+        
+        const totalManga = await Manga.countDocuments(query);
+        const totalPages = Math.ceil(totalManga / limit);
+
+        const mangas = await Manga.find(query)
+            .limit(limit)
+            .skip(skip);
 
         res.render('archive', {
             mangas,
             pageTitle: `Hasil Pencarian: "${keyword}"`,
             title: `Cari ${keyword}`,
-            desc: `Hasil pencarian untuk kata kunci ${keyword}`
+            desc: `Hasil pencarian untuk kata kunci ${keyword}`,
+            currentPage: page,
+            totalPages: totalPages,
+            paginationBaseUrl: `/search?q=${keyword}&` 
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -152,16 +200,33 @@ app.get('/genres', async (req, res) => {
 // FILTER BY GENRE
 app.get('/genre/:tag', async (req, res) => {
     try {
-        const tagParam = req.params.tag.replace(/-/g, ' ');
-        const mangas = await Manga.find({ 
-            tags: { $regex: tagParam, $options: 'i' } 
-        }).limit(30);
+        const rawTag = req.params.tag;
+        const limit = 20;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        // Logic Regex Flexible (Spasi atau Strip)
+        const parts = rawTag.split('-').map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const regexPattern = parts.join('[- ]'); 
+        const query = { tags: { $regex: new RegExp(regexPattern, 'i') } };
+
+        const totalManga = await Manga.countDocuments(query);
+        const totalPages = Math.ceil(totalManga / limit);
+
+        const mangas = await Manga.find(query)
+            .limit(limit)
+            .skip(skip);
+
+        const displayTitle = rawTag.replace(/-/g, ' ').toUpperCase();
 
         res.render('archive', {
             mangas,
-            pageTitle: `Genre: ${tagParam.toUpperCase()}`,
-            title: `Genre ${tagParam}`,
-            desc: `Daftar komik genre ${tagParam}`
+            pageTitle: `Genre: ${displayTitle}`,
+            title: `Genre ${displayTitle}`,
+            desc: `Daftar komik dengan genre ${displayTitle}`,
+            currentPage: page,
+            totalPages: totalPages,
+            paginationBaseUrl: `/genre/${rawTag}?`
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -170,15 +235,27 @@ app.get('/genre/:tag', async (req, res) => {
 app.get('/type/:type', async (req, res) => {
     try {
         const typeParam = req.params.type;
-        const mangas = await Manga.find({ 
-            'metadata.type': { $regex: `^${typeParam}$`, $options: 'i' } 
-        }).limit(30);
+        const limit = 20;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const query = { 'metadata.type': { $regex: `^${typeParam}$`, $options: 'i' } };
+
+        const totalManga = await Manga.countDocuments(query);
+        const totalPages = Math.ceil(totalManga / limit);
+
+        const mangas = await Manga.find(query)
+            .limit(limit)
+            .skip(skip);
 
         res.render('archive', {
             mangas,
             pageTitle: `Type: ${typeParam.toUpperCase()}`,
             title: `Tipe ${typeParam}`,
-            desc: `Daftar komik tipe ${typeParam}`
+            desc: `Daftar komik tipe ${typeParam}`,
+            currentPage: page,
+            totalPages: totalPages,
+            paginationBaseUrl: `/type/${typeParam}?`
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -187,16 +264,27 @@ app.get('/type/:type', async (req, res) => {
 app.get('/status/:status', async (req, res) => {
     try {
         const statusParam = req.params.status;
-        const mangas = await Manga.find({ 
-            'metadata.status': { $regex: `^${statusParam}$`, $options: 'i' } 
-        }).limit(30);
+        const limit = 20;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const query = { 'metadata.status': { $regex: `^${statusParam}$`, $options: 'i' } };
+
+        const totalManga = await Manga.countDocuments(query);
+        const totalPages = Math.ceil(totalManga / limit);
+
+        const mangas = await Manga.find(query)
+            .limit(limit)
+            .skip(skip);
 
         res.render('archive', {
             mangas,
             pageTitle: `Status: ${statusParam.toUpperCase()}`,
             title: `Status ${statusParam}`,
-            desc: `Daftar komik status ${statusParam}`
-            // HAPUS BARIS SITE_NAME DISINI JUGA
+            desc: `Daftar komik status ${statusParam}`,
+            currentPage: page,
+            totalPages: totalPages,
+            paginationBaseUrl: `/status/${statusParam}?`
         });
     } catch (err) { res.status(500).send(err.message); }
 });
