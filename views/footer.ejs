@@ -1,0 +1,40 @@
+<footer class="bg-gray-900 border-t border-gray-800 text-gray-400 py-10 mt-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            
+            <div>
+                <a href="/" class="text-2xl font-bold text-blue-500 mb-4 inline-block">
+    <% if (siteName && siteName.length > 6) { %>
+        <%= siteName.substring(0, 6) %><span class="text-white"><%= siteName.substring(6) %></span>
+    <% } else { %>
+        <%= siteName %>
+    <% } %>
+</a>
+
+                <p class="text-sm leading-relaxed mb-4">
+                    Platform baca komik doujinshi, manga, dan manhwa bahasa Indonesia terlengkap dengan update setiap hari. Nikmati pengalaman membaca yang cepat dan ringan.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-lg">Disclaimer</h4>
+                <div class="text-xs leading-relaxed bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <p class="mb-2">
+                        Semua konten komik di website ini diambil dari sumber terbuka di internet. Kami tidak menyimpan file gambar di server kami sendiri, melainkan menggunakan layanan pihak ketiga.
+                    </p>
+                    <p>
+                        Jika Anda adalah pemegang hak cipta dan ingin konten Anda dihapus, silakan hubungi kami.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
+            <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. All rights reserved.</p>
+            <div class="mt-4 md:mt-0 space-x-4">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>

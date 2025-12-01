@@ -1,0 +1,6 @@
+.env
+node_modules/
+scraper.js
+dd.js
+url.txt
+delete.js
