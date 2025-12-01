@@ -15,7 +15,7 @@
         </div>
     </nav>
 
-    <main class="flex-grow bg-black pb-20">
+    <main class="flex-grow bg-black pb-10">
         <div id="reader-area" class="container mx-auto max-w-3xl min-h-screen cursor-pointer tap-highlight-transparent">
             <% if(chapter.images && chapter.images.length > 0) { %>
                 <% chapter.images.forEach((img, index) => { %>
@@ -24,7 +24,7 @@
                             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
                             data-src="<%= Buffer.from(img).toString('base64') %>" 
                             class="w-full h-auto block protected-img" 
-                            alt="Page <%= index+1 %>">
+                            alt="<%= manga.title %> Chapter <%= chapter.title %> Page <%= index+1 %>">
                         
                         <div class="absolute inset-0 flex items-center justify-center -z-10 bg-gray-900 text-gray-600">
                             Loading...
@@ -40,7 +40,7 @@
             <% } %>
         </div>
 
-        <div class="max-w-3xl mx-auto mt-8 px-4">
+        <div class="max-w-3xl mx-auto mt-8 px-4 mb-8">
             <div class="bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow-lg border border-gray-700">
                 <% if(prevChap) { %>
                     <a href="/read/<%= manga.slug %>/<%= prevChap.slug %>" class="bg-gray-700 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium transition flex items-center gap-2">
@@ -63,6 +63,29 @@
                 <% } %>
             </div>
         </div>
+
+        <div class="max-w-3xl mx-auto px-4">
+            <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center shadow-md">
+                <h2 class="text-lg font-bold text-white mb-3">
+                    Baca <%= manga.title %> Chapter <%= chapter.title %> Bahasa Indonesia
+                </h2>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Baca manga <strong><%= manga.title %> Chapter <%= chapter.title %></strong> bahasa Indonesia terbaru di <strong><%= siteName %></strong>. 
+                    Manga <%= manga.title %> bahasa Indonesia selalu update di <%= siteName %>. 
+                    Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga <%= siteName %> ada di menu Daftar Manga.
+                </p>
+                
+                <div class="mt-4 pt-4 border-t border-gray-800 flex flex-wrap justify-center gap-2 text-xs text-gray-500">
+                    <span>Tags:</span>
+                    <% if (manga.tags && manga.tags.length > 0) { %>
+                        <% manga.tags.slice(0, 5).forEach(tag => { %>
+                            <span class="bg-gray-800 px-2 py-1 rounded"><%= tag %></span>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <%- include('footer') %>
@@ -70,65 +93,39 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const readerArea = document.getElementById('reader-area');
-
             if (readerArea) {
                 readerArea.addEventListener('click', (e) => {
-                    // Mencegah scroll jika user klik kanan (context menu) atau select text
                     if (e.detail === 0) return; 
-
-                    // Scroll ke bawah sejauh 75% dari tinggi layar
-                    // (Angka 0.75 bisa diubah: 0.5 = setengah layar, 1.0 = satu layar penuh)
                     const scrollAmount = window.innerHeight * 0.75;
-
-                    window.scrollBy({
-                        top: scrollAmount,
-                        behavior: 'smooth'
-                    });
+                    window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
                 });
             }
         });
-    </script>
-    <script>
+
         document.addEventListener("DOMContentLoaded", function() {
             const images = document.querySelectorAll('img.protected-img');
-
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
                         const encryptedUrl = img.getAttribute('data-src');
-
                         if (encryptedUrl) {
-                            // Decode Base64 menjadi URL Asli
                             try {
                                 const originalUrl = atob(encryptedUrl);
                                 img.src = originalUrl;
-                                img.removeAttribute('data-src'); // Hapus jejak
-                            } catch (e) {
-                                console.error("Gagal decode gambar", e);
-                            }
+                                img.removeAttribute('data-src'); 
+                            } catch (e) { console.error("Gagal decode gambar", e); }
                         }
-                        
-                        // Stop mengamati gambar ini setelah dimuat
                         observer.unobserve(img);
                     }
                 });
-            }, {
-                rootMargin: "200px 0px", // Pre-load 200px sebelum gambar muncul di layar
-                threshold: 0.01
-            });
-
-            images.forEach(img => {
-                imageObserver.observe(img);
-            });
+            }, { rootMargin: "200px 0px", threshold: 0.01 });
+            images.forEach(img => { imageObserver.observe(img); });
         });
     </script>
 
     <style>
-        /* CSS Tambahan agar tidak ada highlight biru saat tap di HP */
-        .tap-highlight-transparent {
-            -webkit-tap-highlight-color: transparent;
-        }
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
     </style>
 </body>
 </html>

@@ -114,6 +114,7 @@ app.get('/manga-list', async (req, res) => {
     } catch (err) { res.status(500).send(err.message); }
 });
 
+
 // READ CHAPTER PAGE
 app.get('/read/:slug/:chapterSlug', async (req, res) => {
     try {
@@ -129,13 +130,19 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
         const nextChap = await Chapter.findOne({ manga_id: manga._id, chapter_index: chapter.chapter_index - 1 });
         const prevChap = await Chapter.findOne({ manga_id: manga._id, chapter_index: chapter.chapter_index + 1 });
 
+        // Ambil nama situs dari locals (middleware)
+        const siteName = res.locals.siteName;
+
+        // Buat Deskripsi SEO Dinamis
+        const seoDescription = `Baca manga ${manga.title} ${chapter.title} bahasa Indonesia terbaru di ${siteName}. Manga ${manga.title} bahasa Indonesia selalu update di ${siteName}. Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga ${siteName} ada di menu Daftar Manga.`;
+
         res.render('read', { 
             manga,
             chapter,
             nextChap,
             prevChap,
             title: `${manga.title} - ${chapter.title}`,
-            desc: `Sedang membaca ${manga.title} ${chapter.title}.`
+            desc: seoDescription // Deskripsi SEO yang sudah diupdate
         });
     } catch (err) { res.status(500).send(err.message); }
 });
