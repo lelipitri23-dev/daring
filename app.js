@@ -60,8 +60,8 @@ app.get('/', async (req, res) => {
             trending: trending,
             currentPage: page,
             totalPages: totalPages,
-            title: `${res.locals.siteName} - Baca Komik Bahasa Indonesia`,
-            desc: 'Website download dan baca doujin bahasa indonesia terbaru dan terlengkap.'
+            title: `${res.locals.siteName} - Baca Komik & Manhwa Bahasa Indonesia`,
+            desc: 'DoujinShi Website download dan baca doujin & manhwa bahasa indonesia terbaru dan terlengkap.'
         });
     } catch (err) { res.status(500).send(err.message); }
 });
