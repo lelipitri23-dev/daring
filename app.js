@@ -66,7 +66,7 @@ app.get('/', async (req, res) => {
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// DETAIL PAGE
+// DETAIL PAGE (Updated SEO Description)
 app.get('/manga/:slug', async (req, res) => {
     try {
         const manga = await Manga.findOneAndUpdate(
@@ -79,14 +79,26 @@ app.get('/manga/:slug', async (req, res) => {
 
         const chapters = await Chapter.find({ manga_id: manga._id }).sort({ chapter_index: 1 });
 
+        // Ambil variable untuk SEO
+        const siteName = res.locals.siteName;
+        const type = manga.metadata.type ? (manga.metadata.type.type || 'Komik') : 'Komik';
+        const status = manga.metadata.status || 'Unknown';
+        
+        // Ambil potongan sinopsis (maksimal 150 karakter) untuk deskripsi
+        const synopsisSnippet = manga.synopsis ? manga.synopsis.substring(0, 150).replace(/[\r\n]+/g, ' ') + '...' : 'Baca gratis di sini.';
+
+        // Deskripsi SEO yang Kuat
+        const seoDesc = `Baca ${type} ${manga.title} Bahasa Indonesia terbaru di ${siteName}. ${manga.title} memiliki status ${status}. Sinopsis: ${synopsisSnippet} Kualitas gambar HD dan update setiap hari.`;
+
         res.render('detail', { 
             manga,
             chapters,
-            title: `${manga.title} Bahasa Indonesia`,
-            desc: `Baca ${manga.metadata.type ? (manga.metadata.type.type || 'Komik') : 'Komik'} ${manga.title}.`
+            title: `${manga.title} Bahasa Indonesia - ${siteName}`, // Title juga diperkuat
+            desc: seoDesc
         });
     } catch (err) { res.status(500).send(err.message); }
 });
+
 
 // ROUTE MANGA LIST (A-Z)
 app.get('/manga-list', async (req, res) => {
@@ -141,7 +153,7 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
             chapter,
             nextChap,
             prevChap,
-            title: `${manga.title} - ${chapter.title}`,
+            title: `${manga.title} - Chapter ${chapter.title}`,
             desc: seoDescription // Deskripsi SEO yang sudah diupdate
         });
     } catch (err) { res.status(500).send(err.message); }
