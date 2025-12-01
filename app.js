@@ -46,7 +46,7 @@ app.get('/', async (req, res) => {
 
         // 1. Ambil Update Terbaru
         const recents = await Manga.find()
-            .sort({ updatedAt: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
