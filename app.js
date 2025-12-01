@@ -146,7 +146,7 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
         const siteName = res.locals.siteName;
 
         // Buat Deskripsi SEO Dinamis
-        const seoDescription = `Baca manga ${manga.title} ${chapter.title} bahasa Indonesia terbaru di ${siteName}. Manga ${manga.title} bahasa Indonesia selalu update di ${siteName}. Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga ${siteName} ada di menu Daftar Manga.`;
+        const seoDescription = `Baca manga ${manga.title} Chapter ${chapter.title} bahasa Indonesia terbaru di ${siteName}. Manga ${manga.title} bahasa Indonesia selalu update di ${siteName}. Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga ${siteName} ada di menu Daftar Manga.`;
 
         res.render('read', { 
             manga,
