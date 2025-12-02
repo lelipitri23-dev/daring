@@ -313,14 +313,14 @@ app.get('/status/:status', async (req, res) => {
 // ==========================================
 
 app.get('/robots.txt', (req, res) => {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     res.type('text/plain');
     res.send(`User-agent: *\nAllow: /\nSitemap: ${baseUrl}/sitemap.xml`);
 });
 
 app.get('/sitemap.xml', async (req, res) => {
     try {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const baseUrl = `https://${req.get('host')}`;
         const mangas = await Manga.find().select('slug updatedAt');
         const chapters = await Chapter.find().select('slug updatedAt manga_id').populate('manga_id', 'slug');
 
