@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 // HOME PAGE
 app.get('/', async (req, res) => {
     try {
-        const limit = 20; 
+        const limit = 24; 
         const page = parseInt(req.query.page) || 1; 
         const skip = (page - 1) * limit;
 
