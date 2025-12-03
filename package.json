@@ -2,18 +2,26 @@
   "name": "doujindesuweb",
   "version": "1.0.0",
   "main": "app.js",
+<<<<<<< HEAD
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+=======
+  "dev": "nodemon app.js",
+  "scripts": {
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+<<<<<<< HEAD
   "engines": {
     "node": ">=18.0.0"
   },
+=======
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
     "axios": "^1.13.2",
@@ -22,7 +30,11 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+<<<<<<< HEAD
     "mongoose": "^9.0.0",
     "node-telegram-bot-api": "^0.66.0"
+=======
+    "mongoose": "^9.0.0"
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
   }
 }

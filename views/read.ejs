@@ -3,6 +3,7 @@
 <%- include('layout_head') %>
 <body class="bg-gray-900 text-gray-300 flex flex-col min-h-screen">
 
+<<<<<<< HEAD
   <nav class="bg-gray-800 border-b border-gray-700 p-3 sticky top-0 z-50 shadow-lg">
     <div class="container mx-auto max-w-4xl flex justify-between items-center">
       <a href="/manga/<%= manga.slug %>" class="text-sm bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded flex items-center gap-1 transition">
@@ -173,3 +174,131 @@
   </style>
 </body>
 </html>
+=======
+    <nav class="bg-gray-800 border-b border-gray-700 p-3 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto max-w-4xl flex justify-between items-center">
+            <a href="/manga/<%= manga.slug %>" class="text-sm bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded flex items-center gap-1 transition">
+                <span>&larr;</span> <span class="hidden sm:inline">Detail</span>
+            </a>
+            <h1 class="text-sm md:text-base font-bold text-white truncate max-w-[50%] text-center px-2">
+                Chapter <%= chapter.title %>
+            </h1>
+            <a href="/" class="text-sm bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded transition">Home</a>
+        </div>
+    </nav>
+
+    <main class="flex-grow bg-black pb-10">
+        <div id="reader-area" class="container mx-auto max-w-3xl min-h-screen cursor-pointer tap-highlight-transparent">
+            <% if(chapter.images && chapter.images.length > 0) { %>
+                <% chapter.images.forEach((img, index) => { %>
+                    <div class="relative w-full">
+                        <img 
+                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                            data-src="<%= Buffer.from(img).toString('base64') %>" 
+                            class="w-full h-auto block protected-img" 
+                            alt="<%= manga.title %> Chapter <%= chapter.title %> Page <%= index+1 %>">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center -z-10 bg-gray-900 text-gray-600">
+                            Loading...
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="flex flex-col items-center justify-center h-screen text-center px-4">
+                    <div class="text-5xl mb-4">⚠️</div>
+                    <p class="text-xl text-red-400 font-bold">Gambar Tidak Tersedia</p>
+                    <p class="text-sm text-gray-500 mt-2">Silakan coba refresh atau lapor ke admin jika masalah berlanjut.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="max-w-3xl mx-auto mt-8 px-4 mb-8">
+            <div class="bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow-lg border border-gray-700">
+                <% if(prevChap) { %>
+                    <a href="/read/<%= manga.slug %>/<%= prevChap.slug %>" class="bg-gray-700 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium transition flex items-center gap-2">
+                        &larr; Prev
+                    </a>
+                <% } else { %>
+                    <button disabled class="bg-gray-900 text-gray-600 px-5 py-2.5 rounded-lg cursor-not-allowed border border-gray-800">Prev</button>
+                <% } %>
+
+                <a href="/manga/<%= manga.slug %>" class="text-gray-400 hover:text-white text-sm font-medium hidden sm:block">
+                    Daftar Chapter
+                </a>
+
+                <% if(nextChap) { %>
+                    <a href="/read/<%= manga.slug %>/<%= nextChap.slug %>" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-medium transition flex items-center gap-2">
+                        Next &rarr;
+                    </a>
+                <% } else { %>
+                    <button disabled class="bg-gray-900 text-gray-600 px-5 py-2.5 rounded-lg cursor-not-allowed border border-gray-800">Next</button>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="max-w-3xl mx-auto px-4">
+            <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center shadow-md">
+                <h2 class="text-lg font-bold text-white mb-3">
+                    Baca <%= manga.title %> Chapter <%= chapter.title %> Bahasa Indonesia
+                </h2>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Baca manga <strong><%= manga.title %> Chapter <%= chapter.title %></strong> bahasa Indonesia terbaru di <strong><%= siteName %></strong>. 
+                    Manga <%= manga.title %> bahasa Indonesia selalu update di <%= siteName %>. 
+                    Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga <%= siteName %> ada di menu Daftar Manga.
+                </p>
+                
+                <div class="mt-4 pt-4 border-t border-gray-800 flex flex-wrap justify-center gap-2 text-xs text-gray-500">
+                    <span>Tags:</span>
+                    <% if (manga.tags && manga.tags.length > 0) { %>
+                        <% manga.tags.slice(0, 5).forEach(tag => { %>
+                            <span class="bg-gray-800 px-2 py-1 rounded"><%= tag %></span>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <%- include('footer') %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const readerArea = document.getElementById('reader-area');
+            if (readerArea) {
+                readerArea.addEventListener('click', (e) => {
+                    if (e.detail === 0) return; 
+                    const scrollAmount = window.innerHeight * 0.75;
+                    window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+                });
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const images = document.querySelectorAll('img.protected-img');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const encryptedUrl = img.getAttribute('data-src');
+                        if (encryptedUrl) {
+                            try {
+                                const originalUrl = atob(encryptedUrl);
+                                img.src = originalUrl;
+                                img.removeAttribute('data-src'); 
+                            } catch (e) { console.error("Gagal decode gambar", e); }
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: "200px 0px", threshold: 0.01 });
+            images.forEach(img => { imageObserver.observe(img); });
+        });
+    </script>
+
+    <style>
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+    </style>
+</body>
+</html>
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9

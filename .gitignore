@@ -3,6 +3,7 @@ node_modules/
 scraper.js
 dd.js
 url.txt
+<<<<<<< HEAD
 delete.js
 scaper.js
 history.json
@@ -10,3 +11,6 @@ history_indexnow.json
 gg.py
 now.py
 service_account.json
+=======
+delete.js
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9

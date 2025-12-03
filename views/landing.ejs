@@ -24,6 +24,7 @@
     <% if (mangas && mangas.length > 0) {
       %>
 
+<<<<<<< HEAD
       <div class="relative w-full h-[480px] md:h-[600px] mb-8 group overflow-hidden bg-gray-800">
 
         <div class="flex overflow-x-auto snap-x snap-mandatory h-full w-full scroll-smooth no-scrollbar">
@@ -34,13 +35,27 @@
             <div class="min-w-full h-full relative snap-center flex-shrink-0">
 
               <div class="absolute inset-0 w-full h-full bg-cover bg-center blur-sm opacity-30"
+=======
+      <div class="relative w-full h-[500px] md:h-[600px] mb-8 group overflow-hidden bg-gray-800">
+        <div class="flex overflow-x-auto snap-x snap-mandatory h-full w-full scroll-smooth no-scrollbar">
+          <% mangas.slice(0, 5).forEach(hero => {
+            %>
+            <div class="min-w-full h-full relative snap-center flex-shrink-0">
+              <div class="absolute inset-0 w-full h-full bg-cover bg-center blur-sm opacity-30 transition-transform duration-[2000ms] hover:scale-105"
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                 style="background-image: url('<%= hero.thumb || '' %>');">
               </div>
               <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
 
+<<<<<<< HEAD
               <div class="w-full px-4 h-full flex flex-col md:flex-row items-center justify-center md:justify-start relative z-10 gap-3 md:gap-10">
 
                 <div class="w-28 md:w-64 flex-shrink-0 shadow-2xl rounded-lg overflow-hidden border-2 border-gray-600/50 transform transition duration-500 mt-2 md:mt-0">
+=======
+              <div class="w-full px-3 md:px-8 h-full flex flex-col md:flex-row items-center justify-center md:justify-start relative z-10 gap-4 md:gap-10">
+
+                <div class="w-36 md:w-64 flex-shrink-0 shadow-2xl rounded-lg overflow-hidden border-2 border-gray-600/50 transform transition duration-500 hover:scale-105 mt-6 md:mt-0">
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                   <% if (hero.thumb) {
                     %>
                     <img src="<%= hero.thumb %>" alt="<%= hero.title %>" class="w-full h-auto object-cover aspect-[3/4]">
@@ -54,6 +69,7 @@
                   } %>
                 </div>
 
+<<<<<<< HEAD
                 <div class="text-center md:text-left max-w-2xl w-full px-1 md:px-0 flex flex-col items-center md:items-start">
 
                   <span class="bg-blue-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-2 shadow-lg">
@@ -77,6 +93,18 @@
                     </span>
                   </div>
 
+=======
+                <div class="text-center md:text-left max-w-4xl w-full px-2 md:px-0 flex flex-col items-center md:items-start">
+                  <span class="bg-blue-600/90 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 md:mb-3 shadow-lg">Highlight</span>
+                  <h1 class="text-lg md:text-5xl font-extrabold text-white mb-2 md:mb-4 leading-tight drop-shadow-md line-clamp-2 w-full h-[3.5rem] md:h-auto overflow-hidden text-ellipsis">
+    <%= hero.title %>
+</h1>
+                  <div class="flex flex-wrap justify-center md:justify-start gap-2 md:gap-3 text-xs md:text-sm text-gray-300 mb-4 md:mb-6">
+                    <span class="flex items-center gap-1 bg-black/40 px-2 py-1 rounded backdrop-blur-md border border-gray-700"><i class="text-yellow-400">⭐</i> <%= hero.metadata.rating %></span>
+                    <span class="flex items-center gap-1 bg-black/40 px-2 py-1 rounded backdrop-blur-md border border-gray-700">📂 <%= hero.metadata.type ? (typeof hero.metadata.type === 'object' ? hero.metadata.type.type: hero.metadata.type): 'Komik' %></span>
+                    <span class="flex items-center gap-1 bg-green-900/60 text-green-300 px-2 py-1 rounded border border-green-700/50"><%= hero.metadata.status %></span>
+                  </div>
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                   <% if (hero.synopsis) {
                     %>
                     <p class="text-gray-400 mb-6 line-clamp-3 text-sm leading-relaxed hidden md:block border-l-2 border-gray-600 pl-4">
@@ -84,6 +112,7 @@
                     </p>
                     <%
                   } %>
+<<<<<<< HEAD
 
                   <div class="flex gap-3 justify-center md:justify-start w-full md:w-auto">
                     <a href="/manga/<%= hero.slug %>" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 md:py-3 md:px-8 rounded-full shadow-lg transition text-xs md:text-base">
@@ -92,6 +121,11 @@
                     <a href="/manga/<%= hero.slug %>" class="bg-gray-800/80 hover:bg-gray-700 text-white font-bold py-2 px-6 md:py-3 md:px-8 rounded-full border border-gray-600 transition text-xs md:text-base hidden md:inline-block">
                       Detail Info
                     </a>
+=======
+                  <div class="flex gap-3 justify-center md:justify-start w-full md:w-auto">
+                    <a href="/manga/<%= hero.slug %>" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 text-sm md:text-base">Baca Sekarang</a>
+                    <a href="/manga/<%= hero.slug %>" class="bg-gray-800/80 hover:bg-gray-700 text-white font-bold py-2.5 px-8 rounded-full border border-gray-600 transition text-sm md:text-base hidden md:inline-block">Detail Info</a>
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                   </div>
                 </div>
               </div>
@@ -105,7 +139,11 @@
         %>
         <div class="w-full px-2 md:px-6 mb-10">
           <h2 class="text-lg md:text-xl font-bold mb-4 flex items-center gap-2 border-l-4 border-yellow-500 pl-3 text-white">
+<<<<<<< HEAD
             <span>🔥</span> Sedang Hangat
+=======
+            <span></span> Sedang Hangat
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
           </h2>
           <div class="flex overflow-x-auto gap-3 pb-4 custom-scrollbar snap-x no-scrollbar scroll-smooth">
             <% trending.forEach(manga => {
@@ -119,16 +157,24 @@
                       <%
                     } else {
                       %>
+<<<<<<< HEAD
                       <div class="w-full h-full bg-gray-700 flex items-center justify-center text-2xl">
                         📚
                       </div>
+=======
+                      <div class="w-full h-full bg-gray-700 flex items-center justify-center text-2xl"></div>
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                       <%
                     } %>
                     <div class="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded-bl-lg shadow">
                       <%= manga.metadata.rating %>
                     </div>
                     <div class="absolute bottom-0 left-0 bg-black/70 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-tr-lg flex items-center gap-1 border-t border-r border-gray-600">
+<<<<<<< HEAD
                        <%= manga.views || 0 %>
+=======
+                      ️ <%= manga.views || 0 %>
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
                     </div>
                   </div>
                   <div class="p-2 md:p-3 flex-grow flex flex-col justify-between">
@@ -149,10 +195,17 @@
       <div class="w-full px-2 md:px-6 pb-8">
         <div class="flex justify-between items-end mb-6 border-l-4 border-blue-500 pl-3">
           <h2 class="text-lg md:text-xl font-bold text-white uppercase tracking-wide">Update Terbaru</h2>
+<<<<<<< HEAD
           <a href="/search?q=" class="text-xs text-blue-400 hover:text-white transition">Lihat Semua &rarr;</a>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-2 md:gap-6">
+=======
+          <a href="/manga-list" class="text-xs text-blue-400 hover:text-white transition">Lihat Semua &rarr;</a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-4">
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
           <% const latestGrid = mangas.slice(); %>
           <% latestGrid.forEach(manga => {
             %>
@@ -210,12 +263,20 @@
     } else {
       %>
       <div class="h-screen flex flex-col items-center justify-center text-center px-4">
+<<<<<<< HEAD
         <div class="text-5xl mb-4 opacity-50">
+=======
+        <div class="text-5xl mb-4">
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
           📭
         </div>
         <h2 class="text-xl font-bold text-white mb-2">Database Kosong</h2>
         <p class="text-gray-400 text-sm">
+<<<<<<< HEAD
           Belum ada komik yang diinput. Silakan jalankan scraper.
+=======
+          Belum ada komik yang diinput.
+>>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
         </p>
       </div>
       <%
