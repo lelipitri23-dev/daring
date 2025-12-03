@@ -1,4 +1,4 @@
-// app.js - CLEAN & OPTIMIZED VERSION
+// app.js - FINAL VERSION
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 // 1. DATABASE & CONFIG
 // ==========================================
 
-// DB Check
+// Koneksi Database
 if (!process.env.DB_URI) {
     console.error("❌ Error: DB_URI tidak ditemukan di .env");
     process.exit(1);
@@ -23,17 +23,17 @@ mongoose.connect(process.env.DB_URI)
     .then(() => console.log('✅ Connected to MongoDB for Web'))
     .catch(err => console.error('❌ DB Error:', err));
 
+// Setup View Engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 
-// GLOBAL VARIABLES (SEO Friendly)
+// GLOBAL VARIABLES MIDDLEWARE
+// Mengirim variable .env ke semua file EJS secara otomatis
 app.use((req, res, next) => {
     res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
-
-    // SITE_URL priority: ENV → HOST header
+    // Gunakan SITE_URL dari .env, jika tidak ada fallback ke request host
     res.locals.siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
-
     res.locals.currentUrl = req.path;
     next();
 });
@@ -45,33 +45,33 @@ app.use((req, res, next) => {
 // HOME PAGE
 app.get('/', async (req, res) => {
     try {
-        const limit = 20;
-        const page = parseInt(req.query.page) || 1;
+        const limit = 20; 
+        const page = parseInt(req.query.page) || 1; 
         const skip = (page - 1) * limit;
 
         const totalManga = await Manga.countDocuments();
         const totalPages = Math.ceil(totalManga / limit);
 
+        // 1. Ambil Update Terbaru
         const recents = await Manga.find()
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
+        // 2. Ambil Trending (Top Views - Limit 10 untuk Slider)
         const trending = await Manga.find()
             .sort({ views: -1 })
             .limit(10);
-
-        res.render('landing', {
-            mangas: recents,
+            
+        res.render('landing', { 
+            mangas: recents, 
             trending: trending,
             currentPage: page,
             totalPages: totalPages,
             title: `${res.locals.siteName} - Baca Komik Bahasa Indonesia`,
-            desc: `${res.locals.siteName} adalah website baca & download komik bahasa Indonesia terbaru dan terlengkap. Baca komik Doujinshi, Manga, Manhwa, dan Manhua gratis setiap hari.`
+            desc: `${res.locals.siteName} adalah website download dan baca doujin bahasa indonesia terbaru dan terlengkap. Kamu bisa membaca berbagai macam doujin secara gratis di ${res.locals.siteName}.`
         });
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+    } catch (err) { res.status(500).send(err.message); }
 });
 
 // DETAIL PAGE
@@ -79,28 +79,20 @@ app.get('/manga/:slug', async (req, res) => {
     try {
         const manga = await Manga.findOneAndUpdate(
             { slug: req.params.slug },
-            { $inc: { views: 1 } },
-            { new: true }
+            { $inc: { views: 1 } }, 
+            { new: true } 
         );
 
         if (!manga) return res.status(404).render('404');
 
-        const chapters = await Chapter.find({ manga_id: manga._id })
-            .sort({ chapter_index: 1 });
+        const chapters = await Chapter.find({ manga_id: manga._id }).sort({ chapter_index: 1 });
 
         const siteName = res.locals.siteName;
         const type = manga.metadata.type ? (manga.metadata.type.type || 'Komik') : 'Komik';
-        const status = manga.metadata.status || 'Unknown';
 
-        // Snippet sinopsis SEO
-        const synopsisSnippet = manga.synopsis
-            ? manga.synopsis.substring(0, 150).replace(/[\r\n]+/g, ' ') + '...'
-            : `Baca ${type} ${manga.title} di ${siteName}.`;
+        const seoDesc = `Baca ${type} ${manga.title} bahasa Indonesia lengkap di ${siteName}. ${type} ${manga.title} sub indo terupdate hanya di ${siteName}.`;
 
-        const seoDesc = `Baca ${type} ${manga.title} Bahasa Indonesia terbaru di ${siteName}. 
-Status: ${status}. Sinopsis: ${synopsisSnippet}`;
-
-        res.render('detail', {
+        res.render('detail', { 
             manga,
             chapters,
             title: `${manga.title} Bahasa Indonesia - ${siteName}`,
@@ -111,10 +103,10 @@ Status: ${status}. Sinopsis: ${synopsisSnippet}`;
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// MANGA LIST (A-Z)
+// ROUTE MANGA LIST (A-Z)
 app.get('/manga-list', async (req, res) => {
     try {
-        const limit = 24;
+        const limit = 24; 
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
@@ -122,49 +114,40 @@ app.get('/manga-list', async (req, res) => {
         const totalPages = Math.ceil(totalManga / limit);
 
         const mangas = await Manga.find()
-            .select('title slug thumb metadata rating metadata.type metadata.status')
-            .sort({ title: 1 })
+            .select('title slug thumb metadata.rating metadata.type metadata.status') 
+            .sort({ title: 1 }) 
             .skip(skip)
             .limit(limit);
 
         res.render('manga_list', {
             mangas,
             currentPage: page,
-            totalPages,
+            totalPages: totalPages,
             title: `Daftar Komik A-Z - Halaman ${page}`,
-            desc: `Daftar lengkap komik Doujinshi dan Manga, diurutkan A-Z hanya di ${res.locals.siteName}.`
+            desc: `Daftar lengkap komik doujinshi dan manga diurutkan berdasarkan abjad A-Z di ${res.locals.siteName}.`
         });
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// READ CHAPTER
+// READ CHAPTER PAGE
 app.get('/read/:slug/:chapterSlug', async (req, res) => {
     try {
         const manga = await Manga.findOne({ slug: req.params.slug });
         if (!manga) return res.status(404).send('Manga not found');
 
-        const chapter = await Chapter.findOne({
-            manga_id: manga._id,
-            slug: req.params.chapterSlug
+        const chapter = await Chapter.findOne({ 
+            manga_id: manga._id, 
+            slug: req.params.chapterSlug 
         });
         if (!chapter) return res.status(404).send('Chapter not found');
 
-        const nextChap = await Chapter.findOne({
-            manga_id: manga._id,
-            chapter_index: chapter.chapter_index - 1
-        });
-
-        const prevChap = await Chapter.findOne({
-            manga_id: manga._id,
-            chapter_index: chapter.chapter_index + 1
-        });
+        const nextChap = await Chapter.findOne({ manga_id: manga._id, chapter_index: chapter.chapter_index - 1 });
+        const prevChap = await Chapter.findOne({ manga_id: manga._id, chapter_index: chapter.chapter_index + 1 });
 
         const siteName = res.locals.siteName;
-        const seoDescription =
-            `Baca manga ${manga.title} Chapter ${chapter.title} Bahasa Indonesia terbaru di ${siteName}. ` +
-            `Update cepat, kualitas gambar HD, baca gratis tanpa iklan mengganggu.`;
+        const seoDescription = `Baca manga ${manga.title} Chapter ${chapter.title} bahasa Indonesia terbaru di ${siteName}.`;
 
-        res.render('read', {
+        res.render('read', { 
             manga,
             chapter,
             nextChap,
@@ -181,7 +164,7 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
 // 3. SEARCH & FILTER ROUTES
 // ==========================================
 
-// SEARCH PAGE
+// SEARCH
 app.get('/search', async (req, res) => {
     try {
         const keyword = req.query.q;
@@ -192,7 +175,7 @@ app.get('/search', async (req, res) => {
         const skip = (page - 1) * limit;
 
         const query = { title: { $regex: keyword, $options: 'i' } };
-
+        
         const totalManga = await Manga.countDocuments(query);
         const totalPages = Math.ceil(totalManga / limit);
 
@@ -204,15 +187,15 @@ app.get('/search', async (req, res) => {
             mangas,
             pageTitle: `Hasil Pencarian: "${keyword}"`,
             title: `Cari ${keyword} - ${res.locals.siteName}`,
-            desc: `Hasil pencarian komik, manga, manhwa dan doujin untuk kata kunci '${keyword}'.`,
+            desc: `Hasil pencarian untuk kata kunci ${keyword}`,
             currentPage: page,
-            totalPages,
-            paginationBaseUrl: `/search?q=${keyword}&`
+            totalPages: totalPages,
+            paginationBaseUrl: `/search?q=${keyword}&` 
         });
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// GENRES LIST
+// LIST GENRES
 app.get('/genres', async (req, res) => {
     try {
         const genres = await Manga.aggregate([
@@ -221,10 +204,10 @@ app.get('/genres', async (req, res) => {
             { $sort: { _id: 1 } }
         ]);
 
-        res.render('genres', {
+        res.render('genres', { 
             genres,
             title: `Daftar Genre Lengkap - ${res.locals.siteName}`,
-            desc: 'Jelajahi ribuan komik berdasarkan genre dan kategori.'
+            desc: 'Jelajahi ribuan komik berdasarkan genre dan kategori terlengkap.'
         });
     } catch (err) { res.status(500).send(err.message); }
 });
@@ -233,14 +216,12 @@ app.get('/genres', async (req, res) => {
 app.get('/genre/:tag', async (req, res) => {
     try {
         const rawTag = req.params.tag;
-
         const limit = 20;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
-        // Regex fleksibel (spasi atau dash)
         const parts = rawTag.split('-').map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        const regexPattern = parts.join('[- ]');
+        const regexPattern = parts.join('[- ]'); 
         const query = { tags: { $regex: new RegExp(regexPattern, 'i') } };
 
         const totalManga = await Manga.countDocuments(query);
@@ -256,9 +237,9 @@ app.get('/genre/:tag', async (req, res) => {
             mangas,
             pageTitle: `Genre: ${displayTitle}`,
             title: `Genre ${displayTitle} - ${res.locals.siteName}`,
-            desc: `Daftar komik dengan genre ${displayTitle}.`,
+            desc: `Daftar komik dengan genre ${displayTitle}`,
             currentPage: page,
-            totalPages,
+            totalPages: totalPages,
             paginationBaseUrl: `/genre/${rawTag}?`
         });
     } catch (err) { res.status(500).send(err.message); }
@@ -268,7 +249,6 @@ app.get('/genre/:tag', async (req, res) => {
 app.get('/type/:type', async (req, res) => {
     try {
         const typeParam = req.params.type;
-
         const limit = 20;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
@@ -284,11 +264,11 @@ app.get('/type/:type', async (req, res) => {
 
         res.render('archive', {
             mangas,
-            pageTitle: `Tipe: ${typeParam.toUpperCase()}`,
+            pageTitle: `Type: ${typeParam.toUpperCase()}`,
             title: `Tipe ${typeParam} - ${res.locals.siteName}`,
-            desc: `Daftar komik tipe ${typeParam}.`,
+            desc: `Daftar komik tipe ${typeParam}`,
             currentPage: page,
-            totalPages,
+            totalPages: totalPages,
             paginationBaseUrl: `/type/${typeParam}?`
         });
     } catch (err) { res.status(500).send(err.message); }
@@ -298,7 +278,6 @@ app.get('/type/:type', async (req, res) => {
 app.get('/status/:status', async (req, res) => {
     try {
         const statusParam = req.params.status;
-
         const limit = 20;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
@@ -316,35 +295,35 @@ app.get('/status/:status', async (req, res) => {
             mangas,
             pageTitle: `Status: ${statusParam.toUpperCase()}`,
             title: `Status ${statusParam} - ${res.locals.siteName}`,
-            desc: `Daftar komik dengan status ${statusParam}.`,
+            desc: `Daftar komik status ${statusParam}`,
             currentPage: page,
-            totalPages,
+            totalPages: totalPages,
             paginationBaseUrl: `/status/${statusParam}?`
         });
     } catch (err) { res.status(500).send(err.message); }
 });
 
 // ==========================================
-// 4. SEO & ERROR HANDLING
+// 4. SEO & ERROR
 // ==========================================
 
-// ROBOTS.TXT
 app.get('/robots.txt', (req, res) => {
+    // Priority: SITE_URL (.env) -> HTTPS hardcoded -> Host Header
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     res.type('text/plain');
     res.send(`User-agent: *\nAllow: /\nSitemap: ${baseUrl}/sitemap.xml`);
 });
 
-// SITEMAP
 app.get('/sitemap.xml', async (req, res) => {
     try {
+        // Priority: SITE_URL (.env) -> HTTPS hardcoded -> Host Header
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
+        
         const mangas = await Manga.find().select('slug updatedAt');
         const chapters = await Chapter.find().select('slug updatedAt manga_id').populate('manga_id', 'slug');
 
         res.header('Content-Type', 'application/xml');
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>';
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        let xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
         // Homepage
         xml += `<url><loc>${baseUrl}</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`;
@@ -356,7 +335,7 @@ app.get('/sitemap.xml', async (req, res) => {
 
         // Chapter Links
         chapters.forEach(chap => {
-            if (chap.manga_id?.slug) {
+            if (chap.manga_id && chap.manga_id.slug) {
                 xml += `<url><loc>${baseUrl}/read/${chap.manga_id.slug}/${chap.slug}</loc><lastmod>${new Date(chap.updatedAt).toISOString()}</lastmod><priority>0.6</priority></url>`;
             }
         });
@@ -369,12 +348,12 @@ app.get('/sitemap.xml', async (req, res) => {
     }
 });
 
-// STATIC PAGES
+// STATIC PAGES (Optional)
 app.get('/privacy', (req, res) => res.render('privacy', { title: 'Privacy Policy', desc: 'Kebijakan Privasi' }));
-app.get('/terms',   (req, res) => res.render('terms',   { title: 'Terms of Service', desc: 'Syarat dan Ketentuan' }));
+app.get('/terms', (req, res) => res.render('terms', { title: 'Terms of Service', desc: 'Syarat dan Ketentuan' }));
 app.get('/contact', (req, res) => res.render('contact', { title: 'Contact Us', desc: 'Hubungi Kami' }));
 
-// 404 PAGE
+// 404 Handler
 app.use((req, res) => {
     res.status(404).render('404', {
         title: '404 - Tidak Ditemukan',
@@ -382,7 +361,6 @@ app.use((req, res) => {
     });
 });
 
-// START SERVER
 app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });

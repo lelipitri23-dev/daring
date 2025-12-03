@@ -1,47 +1,48 @@
 <footer class="bg-gray-900 border-t border-gray-800 text-gray-400 py-10 mt-12">
-    <div class="container mx-auto px-4">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 mb-8">
-            
-            <div class="flex flex-col justify-start">
-                <a href="/" class="text-2xl font-bold text-blue-500 mb-4 inline-block">
-                    <% if (typeof siteName !== 'undefined' && siteName.length > 6) { %>
-                        <%= siteName.substring(0, 6) %><span class="text-white"><%= siteName.substring(6) %></span>
-                    <% } else { %>
-                        <%= typeof siteName !== 'undefined' ? siteName : 'DoujinShi' %>
-                    <% } %>
-                </a>
+  <div class="container mx-auto px-4">
 
-                <p class="text-sm leading-relaxed mb-4 text-gray-300 max-w-md">
-                    Platform baca komik doujinshi, manga, dan manhwa bahasa Indonesia terlengkap dengan update setiap hari. Nikmati pengalaman membaca yang cepat dan ringan.
-                </p>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 mb-8">
 
-            <div>
-                <h4 class="text-white font-semibold mb-4 text-lg">Disclaimer</h4>
-                <div class="text-xs leading-relaxed bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-sm">
-                    <p class="mb-3">
-                        Semua konten komik di website ini diambil dari sumber terbuka di internet. Kami tidak menyimpan file gambar di server kami sendiri, melainkan menggunakan layanan pihak ketiga.
-                    </p>
-                    <p>
-                        Jika Anda adalah pemegang hak cipta dan ingin konten Anda dihapus, silakan hubungi kami.
-                    </p>
-                </div>
-            </div>
+      <div class="flex flex-col justify-start">
+        <a href="/" class="text-2xl font-bold text-blue-500 mb-4 inline-block">
+          <% if (typeof siteName !== 'undefined' && siteName.length > 6) {
+            %>
+            <%= siteName.substring(0, 6) %><span class="text-white"><%= siteName.substring(6) %></span>
+            <%
+          } else {
+            %>
+            <%= typeof siteName !== 'undefined' ? siteName: 'DoujinShi' %>
+            <%
+          } %>
+        </a>
+
+        <p class="text-sm leading-relaxed mb-4 text-gray-300 max-w-md">
+          Platform baca komik doujinshi, manga, dan manhwa bahasa Indonesia terlengkap dengan update setiap hari. Nikmati pengalaman membaca yang cepat dan ringan.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-lg">Disclaimer</h4>
+        <div class="text-xs leading-relaxed bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-sm">
+          <p class="mb-3">
+            Semua konten komik di website ini diambil dari sumber terbuka di internet. Kami tidak menyimpan file gambar di server kami sendiri, melainkan menggunakan layanan pihak ketiga.
+          </p>
+          <p>
+            Jika Anda adalah pemegang hak cipta dan ingin konten Anda dihapus, silakan hubungi kami.
+          </p>
         </div>
-
-        <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
-            <p class="mb-2 md:mb-0">&copy; <%= new Date().getFullYear() %> <%= typeof siteName !== 'undefined' ? siteName : 'DoujinShi' %>. All rights reserved.</p>
-            <div class="space-x-4">
-<<<<<<< HEAD
-                <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
-                <a href="/terms" class="hover:text-white transition">Terms of Service</a>
-                <a href="/contact" class="hover:text-white transition">Contact Us</a>
-=======
-                <a href="#" class="hover:text-white transition">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition">Terms of Service</a>
->>>>>>> 92a0575f6d027cf4ddc57ba62b64dc238215aba9
-            </div>
-        </div>
+      </div>
     </div>
+
+    <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
+      <p class="mb-2 md:mb-0">
+        &copy; <%= new Date().getFullYear() %> <%= typeof siteName !== 'undefined' ? siteName: 'DoujinShi' %>. All rights reserved.
+      </p>
+      <div class="space-x-4">
+        <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
+        <a href="/terms" class="hover:text-white transition">Terms of Service</a>
+        <a href="/contact" class="hover:text-white transition">Contact Us</a>
+      </div>
+    </div>
+  </div>
 </footer>
