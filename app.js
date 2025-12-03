@@ -170,7 +170,7 @@ app.get('/search', async (req, res) => {
         const keyword = req.query.q;
         if (!keyword) return res.redirect('/');
 
-        const limit = 20;
+        const limit = 24;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
@@ -216,7 +216,7 @@ app.get('/genres', async (req, res) => {
 app.get('/genre/:tag', async (req, res) => {
     try {
         const rawTag = req.params.tag;
-        const limit = 20;
+        const limit = 24;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
@@ -249,7 +249,7 @@ app.get('/genre/:tag', async (req, res) => {
 app.get('/type/:type', async (req, res) => {
     try {
         const typeParam = req.params.type;
-        const limit = 20;
+        const limit = 24;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
@@ -278,7 +278,7 @@ app.get('/type/:type', async (req, res) => {
 app.get('/status/:status', async (req, res) => {
     try {
         const statusParam = req.params.status;
-        const limit = 20;
+        const limit = 24;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
