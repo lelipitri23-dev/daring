@@ -182,42 +182,55 @@ app.get('/manga-list', async (req, res) => {
   }
 });
 
+
 // READ CHAPTER
 app.get('/read/:slug/:chapterSlug', async (req, res) => {
   try {
-    const manga = await Manga.findOne({
-      slug: req.params.slug
-    });
+    const siteName = process.env.SITE_NAME || 'Doujinshi'; 
+
+    const manga = await Manga.findOne({ slug: req.params.slug }).lean();
     if (!manga) return res.status(404).send('Manga not found');
-
-    const chapter = await Chapter.findOne({
-      manga_id: manga._id, slug: req.params.chapterSlug
-    });
+    const chapter = await Chapter.findOne({ manga_id: manga._id, slug: req.params.chapterSlug });
     if (!chapter) return res.status(404).send('Chapter not found');
+    const [allChapters, nextChap, prevChap] = await Promise.all([
+      // A. Ambil SEMUA chapter untuk Sidebar
+      Chapter.find({ manga_id: manga._id })
+        .select('title slug date chapter_index')
+        .sort({ chapter_index: -1 }),
+      Chapter.findOne({ 
+        manga_id: manga._id, 
+        chapter_index: { $gt: chapter.chapter_index } 
+      }).sort({ chapter_index: 1 }),
 
-    const nextChap = await Chapter.findOne({
-      manga_id: manga._id, chapter_index: chapter.chapter_index - 1
-    });
-    const prevChap = await Chapter.findOne({
-      manga_id: manga._id, chapter_index: chapter.chapter_index + 1
-    });
+      
+      Chapter.findOne({ 
+        manga_id: manga._id, 
+        chapter_index: { $lt: chapter.chapter_index } 
+      }).sort({ chapter_index: -1 }) // Sort Descending (cari gap terdekat ke bawah)
+    ]);
+
+    manga.chapters = allChapters;
 
     res.render('read', {
       manga,
       chapter,
-      nextChap,
-      prevChap,
+      nextChap: nextChap, 
+      prevChap: prevChap,
+      
+      siteName, 
       title: `${manga.title} - Chapter ${chapter.title}`,
-      desc: `Baca ${manga.title} Chapter ${chapter.title}.`,
+      desc: `Baca manga ${manga.title} Chapter ${chapter.title} bahasa Indonesia terbaru di ${siteName}. Manga ${manga.title} bahasa Indonesia selalu update di ${siteName}. Jangan lupa membaca update manga lainnya ya. Daftar koleksi manga ${siteName} ada di menu Daftar Manga.`,
       ogType: 'article',
       image: manga.thumb
     });
+
   } catch (err) {
-    res.status(500).send(err.message);
+    console.error("Error Read Chapter:", err); // Log error ke console server
+    res.status(500).send("Terjadi kesalahan pada server.");
   }
 });
 
-// ==========================================
+//==========================================
 // 3. SEARCH & FILTER ROUTES
 // ==========================================
 
