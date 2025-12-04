@@ -1,10 +1,14 @@
-// app.js - FINAL VERSION (With Dynamic Chapter Count)
+// app.js - FINAL VERSION (Fixed API Route)
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const Manga = require('./models/Manga');
 const Chapter = require('./models/Chapter');
+const cors = require('cors');
+
+// IMPORT RUTE API (PENTING)
+const apiRoutes = require('./routes/api');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,45 +16,38 @@ const PORT = process.env.PORT || 3000;
 // ==========================================
 // 1. DATABASE & CONFIG
 // ==========================================
+app.use(cors());
 
 if (!process.env.DB_URI) {
-  console.error("❌ Error: DB_URI tidak ditemukan di .env");
-  process.exit(1);
+    console.error("❌ Error: DB_URI tidak ditemukan di .env");
+    process.exit(1);
 }
 
 mongoose.connect(process.env.DB_URI)
-.then(() => console.log('✅ Connected to MongoDB for Web'))
-.catch(err => console.error('❌ DB Error:', err));
+    .then(() => console.log('✅ Connected to MongoDB for Web'))
+    .catch(err => console.error('❌ DB Error:', err));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 
-app.use((req, res, next) => {
-  res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
-  res.locals.siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
-  res.locals.currentUrl = req.path;
-  next();
-});
-
-// ==========================================
-// HELPER FUNCTION: Hitung Chapter
-// ==========================================
-// Fungsi ini menyisipkan 'chapter_count' ke setiap object manga secara real-time
+// Helper Function: Hitung Chapter (Digunakan di Frontend)
 async function attachChapterCounts(mangas) {
-  return await Promise.all(mangas.map(async (m) => {
-    // Hitung jumlah dokumen di collection Chapter berdasarkan manga_id
-    const count = await Chapter.countDocuments({
-      manga_id: m._id
-    });
-
-    // Konversi Mongoose Document ke Plain Object agar bisa ditambah properti baru
-    const mObj = m.toObject ? m.toObject(): m;
-    mObj.chapter_count = count;
-
-    return mObj;
-  }));
+    return await Promise.all(mangas.map(async (m) => {
+        const count = await Chapter.countDocuments({ manga_id: m._id });
+        const mObj = m.toObject ? m.toObject() : m; 
+        mObj.chapter_count = count;
+        return mObj;
+    }));
 }
+
+// Middleware Global Variables
+app.use((req, res, next) => {
+    res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
+    res.locals.siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
+    res.locals.currentUrl = req.path;
+    next();
+});
 
 // ==========================================
 // 2. MAIN ROUTES
@@ -438,6 +435,7 @@ app.get('/contact', (req, res) => res.render('contact', {
   title: 'Contact Us',
   desc: 'Hubungi Kami'
 }));
+app.use('/api', apiRoutes);
 
 app.use((req, res) => res.status(404).render('404', {
   title: '404 - Tidak Ditemukan',
