@@ -207,8 +207,8 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
       chapter,
       nextChap,
       prevChap,
-      title: `${manga.title} - ${chapter.title}`,
-      desc: `Baca ${manga.title} ${chapter.title}.`,
+      title: `${manga.title} - Chapter ${chapter.title}`,
+      desc: `Baca ${manga.title} Chapter ${chapter.title}.`,
       ogType: 'article',
       image: manga.thumb
     });
