@@ -193,20 +193,17 @@ app.get('/read/:slug/:chapterSlug', async (req, res) => {
     const chapter = await Chapter.findOne({ manga_id: manga._id, slug: req.params.chapterSlug });
     if (!chapter) return res.status(404).send('Chapter not found');
     const [allChapters, nextChap, prevChap] = await Promise.all([
-      // A. Ambil SEMUA chapter untuk Sidebar
       Chapter.find({ manga_id: manga._id })
         .select('title slug date chapter_index')
         .sort({ chapter_index: -1 }),
       Chapter.findOne({ 
         manga_id: manga._id, 
-        chapter_index: { $gt: chapter.chapter_index } 
-      }).sort({ chapter_index: 1 }),
-
-      
+        chapter_index: { $lt: chapter.chapter_index } 
+      }).sort({ chapter_index: -1 }),
       Chapter.findOne({ 
         manga_id: manga._id, 
-        chapter_index: { $lt: chapter.chapter_index } 
-      }).sort({ chapter_index: -1 }) // Sort Descending (cari gap terdekat ke bawah)
+        chapter_index: { $gt: chapter.chapter_index } 
+      }).sort({ chapter_index: 1 }) 
     ]);
 
     manga.chapters = allChapters;
