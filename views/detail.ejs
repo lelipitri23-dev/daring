@@ -4,6 +4,37 @@
 <body class="flex flex-col min-h-screen">
 
   <%- include('navbar') %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Book",
+  "name": "<%= manga.title %>",
+  "alternateName": "<%= manga.alternativeTitle || '' %>",
+  "image": "<%= manga.thumb %>",
+  "description": "<%= manga.synopsis ? manga.synopsis.replace(/[\r\n]+/g, ' ') : '' %>",
+  "author": {
+    "@type": "Person",
+    "name": "<%= manga.metadata.author || 'Unknown' %>"
+  },
+  "genre": <%- JSON.stringify(manga.tags || []) %>,
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "<%= manga.metadata.rating || 0 %>",
+    "bestRating": "10",
+    "worstRating": "0",
+    "ratingCount": "<%= manga.views > 0 ? manga.views : 1 %>" 
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "<%= typeof siteName !== 'undefined' ? siteName : 'DoujinShi' %>",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "<%= typeof siteUrl !== 'undefined' ? siteUrl : '' %>/image/logo-doujindesuXXX.png"
+    }
+  },
+  "datePublished": "<%= manga.metadata.created || '' %>"
+}
+</script>
 
   <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
     <nav class="text-sm text-gray-400 mb-4">
