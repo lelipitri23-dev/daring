@@ -1,53 +1,43 @@
-// app.js - FINAL VERSION (Fixed API Route)
-require('dotenv').config();
+// app.js - FINAL VERSION (With Dynamic Chapter Count)
+require('dotenv').config({ debug: false, quiet: true });
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const Manga = require('./models/Manga');
 const Chapter = require('./models/Chapter');
-const cors = require('cors');
-
-// IMPORT RUTE API (PENTING)
-const apiRoutes = require('./routes/api');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// ==========================================
-// 1. DATABASE & CONFIG
-// ==========================================
-app.use(cors());
-
-if (!process.env.DB_URI) {
-    console.error("❌ Error: DB_URI tidak ditemukan di .env");
-    process.exit(1);
-}
-
-mongoose.connect(process.env.DB_URI)
-    .then(() => console.log('✅ Connected to MongoDB for Web'))
-    .catch(err => console.error('❌ DB Error:', err));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 
-// Helper Function: Hitung Chapter (Digunakan di Frontend)
-async function attachChapterCounts(mangas) {
-    return await Promise.all(mangas.map(async (m) => {
-        const count = await Chapter.countDocuments({ manga_id: m._id });
-        const mObj = m.toObject ? m.toObject() : m; 
-        mObj.chapter_count = count;
-        return mObj;
-    }));
-}
-
-// Middleware Global Variables
 app.use((req, res, next) => {
-    res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
-    res.locals.siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
-    res.locals.currentUrl = req.path;
-    next();
+  res.locals.siteName = process.env.SITE_NAME || 'DoujinShi';
+  res.locals.siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
+  res.locals.currentUrl = req.path;
+  next();
 });
+
+// ==========================================
+// HELPER FUNCTION: Hitung Chapter
+// ==========================================
+// Fungsi ini menyisipkan 'chapter_count' ke setiap object manga secara real-time
+async function attachChapterCounts(mangas) {
+  return await Promise.all(mangas.map(async (m) => {
+    // Hitung jumlah dokumen di collection Chapter berdasarkan manga_id
+    const count = await Chapter.countDocuments({
+      manga_id: m._id
+    });
+
+    // Konversi Mongoose Document ke Plain Object agar bisa ditambah properti baru
+    const mObj = m.toObject ? m.toObject(): m;
+    mObj.chapter_count = count;
+
+    return mObj;
+  }));
+}
 
 // ==========================================
 // 2. MAIN ROUTES
@@ -435,11 +425,49 @@ app.get('/contact', (req, res) => res.render('contact', {
   title: 'Contact Us',
   desc: 'Hubungi Kami'
 }));
-app.use('/api', apiRoutes);
+
+// PROFIL PAGE
+app.get('/profile', (req, res) => {
+    res.render('profile', { 
+        title: `Profil Saya - ${res.locals.siteName}`,
+        desc: 'Lihat bookmark dan riwayat bacaan kamu.'
+    });
+});
 
 app.use((req, res) => res.status(404).render('404', {
   title: '404 - Tidak Ditemukan',
   desc: 'Halaman tidak ditemukan.'
 }));
 
-app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
+// ==========================================
+// 4. SERVER STARTUP
+// ==========================================
+
+const DB_URI = process.env.DB_URI;
+const SITE_URL = process.env.SITE_URL || `http://localhost:${PORT}`;
+
+if (!DB_URI) {
+  console.error("❌ FATAL ERROR: DB_URI is not defined in environment variables.");
+  process.exit(1); 
+}
+
+const startServer = async () => {
+  try {
+    // Opsi serverSelectionTimeoutMS berguna jika koneksi lambat
+    await mongoose.connect(DB_URI, {
+      serverSelectionTimeoutMS: 30000
+    });
+    console.log('✅ Successfully connected to MongoDB...');
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port: ${PORT}`);
+      console.log(`🔗 Access at: ${SITE_URL}`); 
+    });
+
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB. Server will not start.', err);
+    process.exit(1); 
+  }
+};
+
+startServer();
