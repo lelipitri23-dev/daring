@@ -495,10 +495,14 @@ app.get('/sitemap-static.xml', (req, res) => {
         { url: '/manga-list', changefreq: 'daily', priority: '0.9' },
         { url: '/genres', changefreq: 'weekly', priority: '0.8' },
         { url: '/status/publishing', changefreq: 'daily', priority: '0.8' },
-        { url: '/status/finished', changefreq: 'weekly', priority: '0.8' },
-        { url: '/type/manga', changefreq: 'weekly', priority: '0.7' },
-        { url: '/type/manhwa', changefreq: 'weekly', priority: '0.7' },
-        { url: '/type/doujinshi', changefreq: 'weekly', priority: '0.7' }
+        { url: '/status/finished', changefreq: 'daily', priority: '0.8' },
+        { url: '/type/manga', changefreq: 'daily', priority: '0.8' },
+        { url: '/type/manhwa', changefreq: 'daily', priority: '0.8' },
+        { url: '/contact', changefreq: 'weekly', priority: '0.7' },
+        { url: '/terms', changefreq: 'weekly', priority: '0.7' },
+        { url: '/privacy', changefreq: 'weekly', priority: '0.7' },
+        { url: '/profile', changefreq: 'weekly', priority: '0.7' },
+        { url: '/type/doujinshi', changefreq: 'daily', priority: '0.8' }
     ];
 
     let xmlBody = '';
