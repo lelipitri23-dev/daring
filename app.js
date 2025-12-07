@@ -443,10 +443,12 @@ app.get('/status/:status', simpleCache(300), async (req, res) => {
 // 4. SEO ROUTES (Robots & Sitemap Generator)
 // ==========================================
 
-// Helper Formatter Tanggal (YYYY-MM-DD)
+// Helper Formatter Tanggal (Format: 2025-12-07T08:55:02+00:00)
 const formatDate = (date) => {
     const d = new Date(date || Date.now());
-    return d.toISOString().split('T')[0];
+    // Mengambil ISO String (ex: 2023-10-27T10:00:00.123Z)
+    // Menghapus milidetik (.123) dan mengubah Z menjadi +00:00
+    return d.toISOString().replace(/\.\d{3}Z$/, '+00:00');
 };
 
 // 1. ROBOTS.TXT
@@ -454,14 +456,53 @@ app.get('/robots.txt', (req, res) => {
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     res.type('text/plain');
     res.send(
+        // Default Rules (*)
         `User-agent: *\n` +
+        `Crawl-delay: 1\n` +
+        `Disallow: /api/\n` +     // Tetap amankan API
+        `Disallow: /admin/\n` +   // Tetap amankan Admin
+        `\n` +
+        
+        // Popular search engines
+        `User-agent: Googlebot\n` +
+        `Allow: /\n` +
+        `Crawl-delay: 1\n` +
+        `\n` +
+        
+        `User-agent: Bingbot\n` +
+        `Allow: /\n` +
+        `Crawl-delay: 1\n` +
+        `\n` +
+        
+        `User-agent: Slurp\n` +
         `Allow: /\n` +
         `\n` +
+        
+        `User-agent: DuckDuckBot\n` +
+        `Allow: /\n` +
+        `\n` +
+        
+        // Block bad bots / SEO Tools Crawlers
+        `User-agent: SemrushBot\n` +
+        `Disallow: /\n` +
+        `\n` +
+        
+        `User-agent: AhrefsBot\n` +
+        `Disallow: /\n` +
+        `\n` +
+        
+        `User-agent: MJ12bot\n` +
+        `Disallow: /\n` +
+        `\n` +
+        
+        // Sitemap Link
         `Sitemap: ${baseUrl}/sitemap.xml`
     );
 });
 
+
 // 2. SITEMAP INDEX (Induk Sitemap)
+// URL: /sitemap.xml
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
@@ -469,9 +510,9 @@ app.get('/sitemap.xml', (req, res) => {
     const lastMod = formatDate();
 
     const sitemaps = [
-        'sitemap-static.xml', // Halaman statis (Home, Genre, dll)
-        'sitemap-manga.xml',  // List semua komik
-        'sitemap-chapter.xml' // List semua chapter
+        'sitemap-static.xml', // Halaman statis
+        'sitemap-manga.xml',  // List Manga
+        'sitemap-chapter.xml' // List Chapter (Index)
     ];
 
     let xmlBody = '';
@@ -495,26 +536,24 @@ app.get('/sitemap-static.xml', (req, res) => {
         { url: '/manga-list', changefreq: 'daily', priority: '0.9' },
         { url: '/genres', changefreq: 'weekly', priority: '0.8' },
         { url: '/status/publishing', changefreq: 'daily', priority: '0.8' },
-        { url: '/status/finished', changefreq: 'daily', priority: '0.8' },
-        { url: '/type/manga', changefreq: 'daily', priority: '0.8' },
-        { url: '/type/manhwa', changefreq: 'daily', priority: '0.8' },
-        { url: '/contact', changefreq: 'weekly', priority: '0.7' },
-        { url: '/terms', changefreq: 'weekly', priority: '0.7' },
-        { url: '/privacy', changefreq: 'weekly', priority: '0.7' },
-        { url: '/profile', changefreq: 'weekly', priority: '0.7' },
-        { url: '/type/doujinshi', changefreq: 'daily', priority: '0.8' }
+        { url: '/status/finished', changefreq: 'weekly', priority: '0.8' },
+        { url: '/type/manga', changefreq: 'weekly', priority: '0.7' },
+        { url: '/type/manhwa', changefreq: 'weekly', priority: '0.7' },
+        { url: '/type/doujinshi', changefreq: 'weekly', priority: '0.7' }
     ];
 
     let xmlBody = '';
+    const now = formatDate();
+    
     staticPages.forEach(page => {
-        xmlBody += `<url><loc>${baseUrl}${page.url}</loc><lastmod>${formatDate()}</lastmod><changefreq>${page.changefreq}</changefreq><priority>${page.priority}</priority></url>`;
+        xmlBody += `<url><loc>${baseUrl}${page.url}</loc><lastmod>${now}</lastmod><changefreq>${page.changefreq}</changefreq><priority>${page.priority}</priority></url>`;
     });
 
     res.header('Content-Type', 'application/xml');
     res.send(xmlHeader + xmlBody + xmlFooter);
 });
 
-// 4. SITEMAP MANGA (Daftar Komik dari DB)
+// 4. SITEMAP MANGA (Streaming Data)
 app.get('/sitemap-manga.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
@@ -522,42 +561,43 @@ app.get('/sitemap-manga.xml', async (req, res) => {
         const xmlFooter = '</urlset>';
 
         res.header('Content-Type', 'application/xml');
-        res.write(xmlHeader); // Kirim header dulu (Streaming)
+        res.write(xmlHeader); 
 
-        // Ambil data Manga (Slug & Update Time)
-        // Gunakan cursor agar hemat memori jika data ribuan
         const cursor = Manga.find({}, 'slug updatedAt').cursor();
 
         for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
             if (doc.slug) {
-                const urlEntry = `<url><loc>${baseUrl}/manga/${doc.slug}</loc><lastmod>${formatDate(doc.updatedAt)}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`;
+                const urlEntry = `<url><loc>${baseUrl}/manga/${doc.slug}</loc><lastmod>${formatDate(doc.updatedAt)}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>`;
                 res.write(urlEntry);
             }
         }
 
-        res.end(xmlFooter); // Tutup XML
+        res.end(xmlFooter); 
     } catch (err) {
         console.error("Sitemap Manga Error:", err);
         res.status(500).end();
     }
 });
 
-// 5. SITEMAP CHAPTER (Daftar Chapter dari DB)
+// ==========================================
+// SITEMAP CHAPTER (PAGINATION)
+// ==========================================
 const CHAPTER_LIMIT = 500;
+
+// 5. SITEMAP CHAPTER INDEX (Daftar File Chapter)
 app.get('/sitemap-chapter.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
         
-        // Hitung total semua chapter di database
+        // Hitung total halaman yang dibutuhkan
         const totalChapters = await Chapter.countDocuments();
         const totalPages = Math.ceil(totalChapters / CHAPTER_LIMIT);
 
         const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
         const xmlFooter = '</sitemapindex>';
         let xmlBody = '';
-        const lastMod = formatDate(); // Menggunakan tanggal hari ini
+        const lastMod = formatDate(); 
 
-        // Generate list sitemap berdasarkan jumlah halaman
         for (let i = 1; i <= totalPages; i++) {
             xmlBody += `
             <sitemap>
@@ -575,26 +615,19 @@ app.get('/sitemap-chapter.xml', async (req, res) => {
     }
 });
 
-// --------------------------------------------------------
-// 2. SITEMAP CHAPTER PAGES (Child)
-// URL: /sitemap-chapter1.xml, /sitemap-chapter2.xml, dst
-// Fungsi: Menampilkan URL chapter asli (max 500 per file)
-// --------------------------------------------------------
+// 6. SITEMAP CHAPTER PAGES (Isi URL Chapter per 500 item)
 app.get('/sitemap-chapter:page.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
         
-        // Ambil nomor halaman dari URL (misal: "1" dari sitemap-chapter1.xml)
+        // Ambil nomor halaman dari URL (ex: sitemap-chapter1.xml -> page=1)
         const page = parseInt(req.params.page) || 1;
-        
-        // Hitung skip (melewati data)
         const skip = (page - 1) * CHAPTER_LIMIT;
 
-        // Ambil data chapter sesuai halaman
         const chapters = await Chapter.find()
             .select('slug updatedAt manga_id')
-            .populate('manga_id', 'slug') // Ambil slug manga induk
-            .sort({ updatedAt: -1 }) // Urutkan dari yang terbaru
+            .populate('manga_id', 'slug')
+            .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(CHAPTER_LIMIT);
 
@@ -603,7 +636,6 @@ app.get('/sitemap-chapter:page.xml', async (req, res) => {
         let xmlBody = '';
 
         chapters.forEach(doc => {
-            // Pastikan data valid (punya slug dan relasi manga)
             if (doc.slug && doc.manga_id && doc.manga_id.slug) {
                 const url = `${baseUrl}/read/${doc.manga_id.slug}/${doc.slug}`;
                 xmlBody += `
