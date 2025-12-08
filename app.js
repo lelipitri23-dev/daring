@@ -9,6 +9,9 @@ const Manga = require('./models/Manga');
 const Chapter = require('./models/Chapter');
 const TelegramBot = require('node-telegram-bot-api');
 
+// IMPORT RUTE API (PENTING)
+const apiRoutes = require('./routes/api');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -661,6 +664,8 @@ app.get('/profile', (req, res) => {
       desc: 'Lihat bookmark dan riwayat bacaan kamu.'
     });
 });
+
+app.use('/api', apiRoutes);
 
 // ==========================================
 // TELEGRAM BOT HELPER
