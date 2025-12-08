@@ -1,4 +1,4 @@
-// app.js - FINAL VERSION WITH CACHE
+// app.js - FINAL VERSION (FIXED)
 require('dotenv').config({
   debug: false, quiet: true
 });
@@ -7,9 +7,18 @@ const mongoose = require('mongoose');
 const path = require('path');
 const Manga = require('./models/Manga');
 const Chapter = require('./models/Chapter');
+const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ==========================================
+// 1. DEFINISI VARIABLE & KONFIGURASI (FIXED)
+// ==========================================
+// PENTING: Token harus didefinisikan SEBELUM digunakan oleh new TelegramBot
+const token = process.env.TELEGRAM_BOT_TOKEN;
+// PENTING: URL Website harus didefinisikan untuk link di Telegram
+const WEBSITE_URL = process.env.SITE_URL || `http://localhost:${PORT}`;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +32,7 @@ app.use((req, res, next) => {
 });
 
 // ==========================================
-// 🚀 SISTEM CACHE SEDERHANA (In-Memory)
+//  SISTEM CACHE SEDERHANA (In-Memory)
 // ==========================================
 const cacheStore = new Map();
 
@@ -36,9 +45,7 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 const simpleCache = (durationInSeconds) => {
-  return (req,
-    res,
-    next) => {
+  return (req, res, next) => {
     // Hanya cache method GET
     if (req.method !== 'GET') return next();
 
@@ -63,6 +70,14 @@ const simpleCache = (durationInSeconds) => {
     next();
   };
 };
+
+// ==========================================
+// INISIALISASI BOT
+// ==========================================
+// Token sekarang sudah terdefinisi, jadi ini aman
+const bot = new TelegramBot(token, {
+  polling: true
+});
 
 // ==========================================
 // HELPER FUNCTION: Hitung Chapter
@@ -120,7 +135,7 @@ app.get('/', simpleCache(60), async (req, res) => {
       manhwas: manhwas,
       currentPage: page,
       totalPages: totalPages,
-      title: `${res.locals.siteName} - Baca & Download Doujinshi Bahasa Indonesia`,
+      title: `${res.locals.siteName} - Baca Komik Bahasa Indonesia`,
       desc: `${res.locals.siteName} adalah website download dan baca doujin bahasa indonesia terbaru dan terlengkap. Kamu bisa membaca berbagai macam doujin secara gratis di ${res.locals.siteName}.`
     });
   } catch (err) {
@@ -443,11 +458,9 @@ app.get('/status/:status', simpleCache(300), async (req, res) => {
 // 4. SEO ROUTES (Robots & Sitemap Generator)
 // ==========================================
 
-// Helper Formatter Tanggal (Format: 2025-12-07T08:55:02+00:00)
+// Helper Formatter Tanggal
 const formatDate = (date) => {
     const d = new Date(date || Date.now());
-    // Mengambil ISO String (ex: 2023-10-27T10:00:00.123Z)
-    // Menghapus milidetik (.123) dan mengubah Z menjadi +00:00
     return d.toISOString().replace(/\.\d{3}Z$/, '+00:00');
 };
 
@@ -456,53 +469,25 @@ app.get('/robots.txt', (req, res) => {
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     res.type('text/plain');
     res.send(
-        // Default Rules (*)
         `User-agent: *\n` +
         `Crawl-delay: 1\n` +
-        `Disallow: /api/\n` +     // Tetap amankan API
-        `Disallow: /admin/\n` +   // Tetap amankan Admin
+        `Disallow: /api/\n` +
+        `Disallow: /admin/\n` +
         `\n` +
-        
-        // Popular search engines
         `User-agent: Googlebot\n` +
         `Allow: /\n` +
         `Crawl-delay: 1\n` +
         `\n` +
-        
         `User-agent: Bingbot\n` +
         `Allow: /\n` +
         `Crawl-delay: 1\n` +
         `\n` +
-        
-        `User-agent: Slurp\n` +
-        `Allow: /\n` +
-        `\n` +
-        
-        `User-agent: DuckDuckBot\n` +
-        `Allow: /\n` +
-        `\n` +
-        
-        // Block bad bots / SEO Tools Crawlers
-        `User-agent: SemrushBot\n` +
-        `Disallow: /\n` +
-        `\n` +
-        
-        `User-agent: AhrefsBot\n` +
-        `Disallow: /\n` +
-        `\n` +
-        
-        `User-agent: MJ12bot\n` +
-        `Disallow: /\n` +
-        `\n` +
-        
-        // Sitemap Link
         `Sitemap: ${baseUrl}/sitemap.xml`
     );
 });
 
 
-// 2. SITEMAP INDEX (Induk Sitemap)
-// URL: /sitemap.xml
+// 2. SITEMAP INDEX
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
@@ -510,9 +495,9 @@ app.get('/sitemap.xml', (req, res) => {
     const lastMod = formatDate();
 
     const sitemaps = [
-        'sitemap-static.xml', // Halaman statis
-        'sitemap-manga.xml',  // List Manga
-        'sitemap-chapter.xml' // List Chapter (Index)
+        'sitemap-static.xml', 
+        'sitemap-manga.xml',  
+        'sitemap-chapter.xml' 
     ];
 
     let xmlBody = '';
@@ -524,13 +509,12 @@ app.get('/sitemap.xml', (req, res) => {
     res.send(xmlHeader + xmlBody + xmlFooter);
 });
 
-// 3. SITEMAP STATIC (Halaman Umum)
+// 3. SITEMAP STATIC
 app.get('/sitemap-static.xml', (req, res) => {
     const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
     const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     const xmlFooter = '</urlset>';
     
-    // Daftar halaman statis manual
     const staticPages = [
         { url: '/', changefreq: 'hourly', priority: '1.0' },
         { url: '/manga-list', changefreq: 'daily', priority: '0.9' },
@@ -539,7 +523,11 @@ app.get('/sitemap-static.xml', (req, res) => {
         { url: '/status/finished', changefreq: 'weekly', priority: '0.8' },
         { url: '/type/manga', changefreq: 'weekly', priority: '0.7' },
         { url: '/type/manhwa', changefreq: 'weekly', priority: '0.7' },
-        { url: '/type/doujinshi', changefreq: 'weekly', priority: '0.7' }
+        { url: '/type/doujinshi', changefreq: 'weekly', priority: '0.7' },
+        { url: '/profile', changefreq: 'weekly', priority: '0.7' },
+        { url: '/privacy', changefreq: 'weekly', priority: '0.7' },
+        { url: '/terms', changefreq: 'weekly', priority: '0.7' },
+        { url: '/contact', changefreq: 'weekly', priority: '0.7' }
     ];
 
     let xmlBody = '';
@@ -553,7 +541,7 @@ app.get('/sitemap-static.xml', (req, res) => {
     res.send(xmlHeader + xmlBody + xmlFooter);
 });
 
-// 4. SITEMAP MANGA (Streaming Data)
+// 4. SITEMAP MANGA
 app.get('/sitemap-manga.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
@@ -579,17 +567,12 @@ app.get('/sitemap-manga.xml', async (req, res) => {
     }
 });
 
-// ==========================================
-// SITEMAP CHAPTER (PAGINATION)
-// ==========================================
+// SITEMAP CHAPTER
 const CHAPTER_LIMIT = 500;
 
-// 5. SITEMAP CHAPTER INDEX (Daftar File Chapter)
 app.get('/sitemap-chapter.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
-        
-        // Hitung total halaman yang dibutuhkan
         const totalChapters = await Chapter.countDocuments();
         const totalPages = Math.ceil(totalChapters / CHAPTER_LIMIT);
 
@@ -615,12 +598,9 @@ app.get('/sitemap-chapter.xml', async (req, res) => {
     }
 });
 
-// 6. SITEMAP CHAPTER PAGES (Isi URL Chapter per 500 item)
 app.get('/sitemap-chapter:page.xml', async (req, res) => {
     try {
         const baseUrl = process.env.SITE_URL || `https://${req.get('host')}`;
-        
-        // Ambil nomor halaman dari URL (ex: sitemap-chapter1.xml -> page=1)
         const page = parseInt(req.params.page) || 1;
         const skip = (page - 1) * CHAPTER_LIMIT;
 
@@ -658,7 +638,8 @@ app.get('/sitemap-chapter:page.xml', async (req, res) => {
 });
 
 
-// STATIC PAGES - Cache 1 Jam (jarang berubah)
+
+// STATIC PAGES - Cache 1 Jam
 app.get('/privacy', simpleCache(3600), (req, res) => res.render('privacy', {
   title: 'Privacy Policy',
   desc: 'Kebijakan Privasi'
@@ -672,13 +653,126 @@ app.get('/contact', simpleCache(3600), (req, res) => res.render('contact', {
   desc: 'Hubungi Kami'
 }));
 
-// PROFIL PAGE (JANGAN DI CACHE - Personal User Data)
+// PROFIL PAGE
 app.get('/profile', (req, res) => {
   res.render('profile',
     {
       title: `Profil Saya - ${res.locals.siteName}`,
       desc: 'Lihat bookmark dan riwayat bacaan kamu.'
     });
+});
+
+// ==========================================
+// TELEGRAM BOT HELPER
+// ==========================================
+async function sendMangaMessage(chatId, manga) {
+  // WEBSITE_URL diambil dari deklarasi di atas
+  const link = `${WEBSITE_URL}/manga/${manga.slug}`;
+  const caption = `<b><a href="${link}">${manga.title}</a></b>`; 
+
+  if (manga.thumb && manga.thumb.startsWith('http')) {
+    try {
+      await bot.sendPhoto(chatId, manga.thumb, {
+        caption: caption,
+        parse_mode: 'HTML'
+      });
+    } catch (e) {
+      await bot.sendMessage(chatId, caption, {
+        parse_mode: 'HTML'
+      });
+    }
+  } else {
+    await bot.sendMessage(chatId, caption, {
+      parse_mode: 'HTML'
+    });
+  }
+}
+
+// ==========================================
+// COMMAND HANDLERS
+// ==========================================
+
+// 1. Command /start
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  const welcomeMessage =
+  `  *Halo! Saya Bot Doujinshi.*\n\n` +
+  `Gunakan perintah berikut:\n` +
+  `/search <judul> - Cari manga\n` +
+  `/latest - Lihat update terbaru`;
+
+  bot.sendMessage(chatId, welcomeMessage, {
+    parse_mode: 'Markdown'
+  });
+});
+
+// 2. Command /search <keyword>
+bot.onText(/\/search (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const keyword = match[1];
+
+  try {
+    bot.sendChatAction(chatId, 'typing');
+
+    const results = await Manga.find({
+      title: {
+        $regex: keyword, $options: 'i'
+      }
+    })
+    .select('title slug thumb')
+    .limit(5); 
+
+    if (results.length === 0) {
+      return bot.sendMessage(chatId, `  Tidak ditemukan: <b>${keyword}</b>`, {
+        parse_mode: 'HTML'
+      });
+    }
+
+    for (const manga of results) {
+      await sendMangaMessage(chatId, manga);
+    }
+
+  } catch (err) {
+    console.error(err);
+    bot.sendMessage(chatId, '  Terjadi kesalahan server.');
+  }
+});
+
+// 3. Command /latest
+bot.onText(/\/latest/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  try {
+    bot.sendChatAction(chatId, 'typing');
+
+    const recents = await Manga.find()
+    .sort({
+      createdAt: -1
+    }) 
+    .limit(5)
+    .select('title slug thumb');
+
+    if (recents.length === 0) {
+      return bot.sendMessage(chatId, '  Belum ada data manga.');
+    }
+
+    await bot.sendMessage(chatId, '  <b>Update Terbaru:</b>', {
+      parse_mode: 'HTML'
+    });
+
+    for (const manga of recents) {
+      await sendMangaMessage(chatId, manga);
+    }
+
+  } catch (err) {
+    console.error(err);
+    bot.sendMessage(chatId, '  Gagal mengambil data terbaru.');
+  }
+});
+
+// Handler error global
+bot.on('polling_error', (error) => {
+  console.log('Telegram Polling Error:', error.code);
 });
 
 app.use((req, res) => res.status(404).render('404', {
@@ -691,10 +785,9 @@ app.use((req, res) => res.status(404).render('404', {
 // ==========================================
 
 const DB_URI = process.env.DB_URI;
-const SITE_URL = process.env.SITE_URL || `http://localhost:${PORT}`;
 
 if (!DB_URI) {
-  console.error("❌ FATAL ERROR: DB_URI is not defined in environment variables.");
+  console.error(" FATAL ERROR: DB_URI is not defined in environment variables.");
   process.exit(1);
 }
 
@@ -703,15 +796,15 @@ const startServer = async () => {
     await mongoose.connect(DB_URI, {
       serverSelectionTimeoutMS: 30000
     });
-    console.log('✅ Successfully connected to MongoDB...');
+    console.log(' Successfully connected to MongoDB...');
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port: ${PORT}`);
-      console.log(`🔗 Access at: ${SITE_URL}`);
+      console.log(` Server is running on port: ${PORT}`);
+      console.log(` Access at: ${WEBSITE_URL}`);
     });
 
   } catch (err) {
-    console.error('❌ Failed to connect to MongoDB. Server will not start.', err);
+    console.error(' Failed to connect to MongoDB. Server will not start.', err);
     process.exit(1);
   }
 };
