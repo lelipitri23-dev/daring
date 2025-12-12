@@ -3,194 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof title !== 'undefined' ? title : 'Download Aplikasi' %></title>
+    <title>Unduh APK Doujindesu untuk Android - Versi Terbaru</title>
     <meta name="description" content="<%= typeof desc !== 'undefined' ? desc : 'Download aplikasi baca komik terbaik.' %>">
     
-    <style>
-        /* --- CSS STYLING KHUSUS LANDING PAGE --- */
-        :root {
-            --primary-color: #ff5722; 
-            --bg-color: #121212;      
-            --card-bg: #1e1e1e;       
-            --text-color: #ffffff;    
-            --text-secondary: #b0b0b0; 
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff5722',      /* Warna Oranye */
+                        'primary-hover': '#e64a19',
+                        dark: '#121212',         /* Background Utama */
+                        card: '#1e1e1e',         /* Background Kartu */
+                        'card-alt': '#1a1a1a',   /* Background Konten Tambahan */
+                        secondary: '#b0b0b0',    /* Teks Abu-abu */
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                    }
+                }
+            }
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .lp-container {
-            max-width: 600px;
-            width: 100%;
-            padding: 20px;
-        }
-
-        /* Navigasi Sederhana untuk kembali ke Home */
-        .simple-nav {
-            margin-bottom: 20px;
-        }
-        .back-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-        }
-        .back-link:hover { color: var(--primary-color); }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 30px 0;
-        }
-
-        .app-logo {
-            width: 100px;
-            height: 100px;
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            margin-bottom: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            font-weight: bold;
-            color: var(--primary-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .app-name {
-            font-size: 2rem;
-            margin: 0;
-            color: var(--primary-color);
-        }
-
-        .version-badge {
-            background-color: #333;
-            color: var(--text-secondary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            display: inline-block;
-            margin-top: 8px;
-        }
-
-        /* Tombol Download */
-        .download-btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 10px;
-            margin-top: 25px;
-            text-align: center;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
-            box-sizing: border-box;
-        }
-
-        .download-btn:hover {
-            background-color: #e64a19;
-            transform: translateY(-2px);
-        }
-
-        /* Informasi File */
-        .info-card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 25px;
-            margin-bottom: 30px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #333;
-            padding: 10px 0;
-            font-size: 0.9rem;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .label { color: var(--text-secondary); }
-        .value { font-weight: bold; }
-
-        /* Konten Tambahan (Cara Install & Changelog) */
-        .custom-content {
-            background-color: #1a1a1a;
-            padding: 20px 0;
-            border-radius: 15px;
-            font-size: 0.95rem;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-bottom: 20px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-dark text-white font-sans min-h-screen flex justify-center leading-relaxed antialiased">
 
-    <div class="lp-container">
-        <div class="simple-nav">
-            <a href="/" class="back-link">← Kembali ke Beranda</a>
+    <div class="w-full max-w-[600px] p-5">
+        
+        <div class="mb-5">
+            <a href="/" class="text-secondary no-underline text-sm inline-flex items-center hover:text-primary transition-colors duration-200">
+                ← Kembali ke Beranda
+            </a>
         </div>
 
-        <div class="hero">
-            <div class="app-logo">DJ</div>
+        <div class="text-center py-8">
+            <div class="w-[100px] h-[100px] bg-card rounded-[20px] mb-4 inline-flex items-center justify-center text-[35px] font-bold text-primary shadow-lg shadow-black/50">
+                DJ
+            </div>
             
-            <h1 class="app-name"><%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %></h1>
+            <h1 class="text-3xl m-0 text-primary font-bold">
+                <%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %>
+            </h1>
             
-            <div class="version-badge">Versi 6.0.0</div>
+            <div class="bg-[#333] text-secondary px-3 py-1 rounded-full text-xs inline-block mt-2">
+                Versi 6.0.0
+            </div>
             
-            <a href="https://cdn1.nekodrive.web.id/6.0.0.apk" class="download-btn">
+            <a href="https://cdn1.nekodrive.web.id/6.0.0.apk" class="block w-full p-4 bg-primary text-white no-underline text-lg font-bold rounded-[10px] mt-6 text-center transition-all duration-200 hover:bg-primary-hover hover:-translate-y-0.5 shadow-lg shadow-primary/40">
                 DOWNLOAD APK (v6.0.0)
             </a>
-            <p style="font-size: 0.8rem; color: #777; margin-top: 10px;">Server: Nekodrive</p>
+            <p class="text-xs text-[#777] mt-2.5">Server: Nekodrive</p>
         </div>
 
-        <div class="info-card">
-            <div class="info-row">
-                <span class="label">Nama File</span>
-                <span class="value">Doujindesu.apk</span>
+        <div class="bg-card rounded-[15px] p-5 mt-6 mb-8">
+            <div class="flex justify-between border-b border-[#333] py-2.5 text-sm">
+                <span class="text-secondary">Nama File</span>
+                <span class="font-bold">Doujindesu.apk</span>
             </div>
-            <div class="info-row">
-                <span class="label">Ukuran</span>
-                <span class="value">~50 MB</span>
+            <div class="flex justify-between border-b border-[#333] py-2.5 text-sm">
+                <span class="text-secondary">Ukuran</span>
+                <span class="font-bold">~50 MB</span>
             </div>
-            <div class="info-row">
-                <span class="label">Update</span>
-                <span class="value">Terbaru</span>
+            <div class="flex justify-between border-b border-[#333] py-2.5 text-sm">
+                <span class="text-secondary">Update</span>
+                <span class="font-bold">Terbaru</span>
             </div>
-            <div class="info-row">
-                <span class="label">OS Minimal</span>
-                <span class="value">Android 5.0+</span>
+            <div class="flex justify-between border-b-0 py-2.5 text-sm">
+                <span class="text-secondary">OS Minimal</span>
+                <span class="font-bold">Android 5.0+</span>
             </div>
         </div>
 
-        <div class="custom-content">
+        <div class="bg-card-alt py-5 rounded-[15px] text-[0.95rem]">
             
-            <p style="margin-left: 30px; color: whitesmoke; font-weight: 600;">Cara menginstal</p>
-            <ol style="margin-left: 20px; color: #ffffff; margin-top: -10px;">
+            <p class="ml-8 text-gray-100 font-semibold mb-2">Cara menginstal</p>
+            <ol class="ml-5 text-white list-decimal pl-5 space-y-1 text-sm md:text-base">
                 <li>Download Apk nya di atas</li>
                 <li>Pastikan memori penyimpanan kamu tidak penuh</li>
                 <li>Aktifkan penginstalan sumber tidak dikenal melalui pengaturan keamanan ponsel</li>
@@ -198,9 +87,11 @@
                 <li>Apabila ingin update maka instal langsung saja (ditimpa), <strong>jika tidak dapat di-install maka kamu harus menghapus (uninstall) versi sebelumnya terlebih dahulu</strong></li>
                 <li>Apabila muncul peringatan, lanjut dan klik tetap install</li>
             </ol>
+            
             <br>
-            <p style="margin-left: 30px; color: whitesmoke; font-weight: 600;">Apa yang baru? Dari Versi 2.0</p>
-            <ol style="margin-left: 20px; color: #ffffff; margin-top: -10px;">
+            
+            <p class="ml-8 text-gray-100 font-semibold mb-2">Apa yang baru? Dari Versi 2.0</p>
+            <ol class="ml-5 text-white list-decimal pl-5 space-y-1 text-sm md:text-base">
                 <li>Memperharui perpustakaan api</li>
                 <li>Dukungan untuk perangkat Android 12</li>
                 <li>Memperbaiki login dengan email</li>
@@ -213,7 +104,7 @@
 
         </div>
 
-        <footer>
+        <footer class="text-center mt-10 pb-5 text-secondary text-xs">
             &copy; <%= new Date().getFullYear() %> <%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %>. <br>
             All rights reserved.
         </footer>
