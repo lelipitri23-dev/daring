@@ -70,8 +70,8 @@ router.get('/home', async (req, res) => {
 
         // Query 1: Recents
         const recentsPromise = Manga.find()
-            .select('title slug thumb metadata updatedAt')
-            .sort({ updatedAt: -1 })
+            .select('title slug thumb metadata createdAt')
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean(); // .lean() converts to plain JS object instantly
@@ -86,7 +86,7 @@ router.get('/home', async (req, res) => {
         // Query 3: Manhwa
         const manhwasPromise = Manga.find({ 'metadata.type': { $regex: 'manhwa', $options: 'i' } })
             .select('title slug thumb metadata')
-            .sort({ updatedAt: -1 })
+            .sort({ createdAt: -1 })
             .limit(10)
             .lean();
 
