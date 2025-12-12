@@ -13,12 +13,12 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#ff5722',      /* Warna Oranye */
+                        primary: '#ff5722',
                         'primary-hover': '#e64a19',
-                        dark: '#121212',         /* Background Utama */
-                        card: '#1e1e1e',         /* Background Kartu */
-                        'card-alt': '#1a1a1a',   /* Background Konten Tambahan */
-                        secondary: '#b0b0b0',    /* Teks Abu-abu */
+                        dark: '#121212',
+                        card: '#1e1e1e',
+                        'card-alt': '#1a1a1a',
+                        secondary: '#b0b0b0',
                     },
                     fontFamily: {
                         sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
@@ -26,6 +26,38 @@
                 }
             }
         }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "<%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %>",
+      "operatingSystem": "Android",
+      "applicationCategory": "EntertainmentApplication",
+      "fileSize": "50MB",
+      "softwareVersion": "6.0.0",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "IDR",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1250",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "downloadUrl": "https://cdn1.nekodrive.web.id/6.0.0.apk",
+      "featureList": "Baca Manga Bahasa Indonesia, Update Harian, Mode Gelap, Hemat Kuota",
+      "screenshot": "https://doujinshi.life/favicon.png", 
+      "author": {
+          "@type": "Organization",
+          "name": "<%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %> Team"
+      }
+    }
     </script>
 </head>
 <body class="bg-dark text-white font-sans min-h-screen flex justify-center leading-relaxed antialiased">
