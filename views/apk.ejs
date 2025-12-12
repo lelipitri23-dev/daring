@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Download Aplikasi' %></title>
+    <meta name="description" content="<%= typeof desc !== 'undefined' ? desc : 'Download aplikasi baca komik terbaik.' %>">
+    
+    <style>
+        /* --- CSS STYLING KHUSUS LANDING PAGE --- */
+        :root {
+            --primary-color: #ff5722; 
+            --bg-color: #121212;      
+            --card-bg: #1e1e1e;       
+            --text-color: #ffffff;    
+            --text-secondary: #b0b0b0; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .lp-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Navigasi Sederhana untuk kembali ke Home */
+        .simple-nav {
+            margin-bottom: 20px;
+        }
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        .back-link:hover { color: var(--primary-color); }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .app-logo {
+            width: 100px;
+            height: 100px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            font-weight: bold;
+            color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .app-name {
+            font-size: 2rem;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .version-badge {
+            background-color: #333;
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        /* Tombol Download */
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-align: center;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            box-sizing: border-box;
+        }
+
+        .download-btn:hover {
+            background-color: #e64a19;
+            transform: translateY(-2px);
+        }
+
+        /* Informasi File */
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .label { color: var(--text-secondary); }
+        .value { font-weight: bold; }
+
+        /* Konten Tambahan (Cara Install & Changelog) */
+        .custom-content {
+            background-color: #1a1a1a;
+            padding: 20px 0;
+            border-radius: 15px;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lp-container">
+        <div class="simple-nav">
+            <a href="/" class="back-link">← Kembali ke Beranda</a>
+        </div>
+
+        <div class="hero">
+            <div class="app-logo">DJ</div>
+            
+            <h1 class="app-name"><%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %></h1>
+            
+            <div class="version-badge">Versi 6.0.0</div>
+            
+            <a href="https://cdn1.nekodrive.web.id/6.0.0.apk" class="download-btn">
+                DOWNLOAD APK (v6.0.0)
+            </a>
+            <p style="font-size: 0.8rem; color: #777; margin-top: 10px;">Server: Nekodrive</p>
+        </div>
+
+        <div class="info-card">
+            <div class="info-row">
+                <span class="label">Nama File</span>
+                <span class="value">Doujindesu.apk</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Ukuran</span>
+                <span class="value">~50 MB</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Update</span>
+                <span class="value">Terbaru</span>
+            </div>
+            <div class="info-row">
+                <span class="label">OS Minimal</span>
+                <span class="value">Android 5.0+</span>
+            </div>
+        </div>
+
+        <div class="custom-content">
+            
+            <p style="margin-left: 30px; color: whitesmoke; font-weight: 600;">Cara menginstal</p>
+            <ol style="margin-left: 20px; color: #ffffff; margin-top: -10px;">
+                <li>Download Apk nya di atas</li>
+                <li>Pastikan memori penyimpanan kamu tidak penuh</li>
+                <li>Aktifkan penginstalan sumber tidak dikenal melalui pengaturan keamanan ponsel</li>
+                <li>Instal Apk nya melalui file manager bawaan atau aplikasi X-plore</li>
+                <li>Apabila ingin update maka instal langsung saja (ditimpa), <strong>jika tidak dapat di-install maka kamu harus menghapus (uninstall) versi sebelumnya terlebih dahulu</strong></li>
+                <li>Apabila muncul peringatan, lanjut dan klik tetap install</li>
+            </ol>
+            <br>
+            <p style="margin-left: 30px; color: whitesmoke; font-weight: 600;">Apa yang baru? Dari Versi 2.0</p>
+            <ol style="margin-left: 20px; color: #ffffff; margin-top: -10px;">
+                <li>Memperharui perpustakaan api</li>
+                <li>Dukungan untuk perangkat Android 12</li>
+                <li>Memperbaiki login dengan email</li>
+                <li>Memperbaiki tata letak halaman komentar pada android 11 ke atas</li>
+                <li>Memperbarui sistem pencegah sertifikat aplikasi yang tidak sah</li>
+                <li>Sekarang Anda dapat memilih akun Google Drive yang ingin Anda gunakan</li>
+                <li>Menambahkan gambar dasar untuk pemuatan gambar profil yang gagal</li>
+                <li>Mengubah tata letak pratinjau komentar pada halaman baca</li>
+            </ol>
+
+        </div>
+
+        <footer>
+            &copy; <%= new Date().getFullYear() %> <%= typeof siteName !== 'undefined' ? siteName : 'Doujindesu' %>. <br>
+            All rights reserved.
+        </footer>
+    </div>
+
+</body>
+</html>
