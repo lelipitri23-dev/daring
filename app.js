@@ -665,6 +665,16 @@ app.get('/profile', (req, res) => {
     });
 });
 
+// LANDING PAGE APLIKASI - Cache 1 Jam
+app.get('/app', simpleCache(3600), (req, res) => {
+  res.render('apk', {
+    title: `Download Aplikasi - ${res.locals.siteName}`,
+    desc: 'Download aplikasi Doujindesu versi terbaru untuk Android. Baca doujinshi lebih nyaman dan cepat.',
+    currentUrl: '/app'
+  });
+});
+
+
 app.use('/api', apiRoutes);
 
 // ==========================================
