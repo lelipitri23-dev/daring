@@ -149,31 +149,26 @@ app.get('/', simpleCache(60), async (req, res) => {
 // DETAIL PAGE - Cache 3 Menit (180 detik)
 app.get('/manga/:slug', simpleCache(180), async (req, res) => {
   try {
-    // Note: Views bertambah setiap 3 menit sekali per user (saat cache refresh)
     const manga = await Manga.findOneAndUpdate(
-      {
-        slug: req.params.slug
-      },
-      {
-        $inc: {
-          views: 1
-        }
-      },
-      {
-        new: true
-      }
+      { slug: req.params.slug },
+      { $inc: { views: 1 } },
+      { new: true }
     );
 
     if (!manga) return res.status(404).render('404');
 
+    // --- PERBAIKAN SORTING DI SINI ---
     const chapters = await Chapter.find({
       manga_id: manga._id
-    }).sort({
-      chapter_index: 1
-    });
+    })
+    // Gunakan -1 untuk chapter terbesar/terbaru di atas
+    // Gunakan 1 untuk chapter 1 di atas
+    .sort({ chapter_index: -1 }) 
+    // Numeric ordering memastikan angka dibaca sebagai angka, bukan teks
+    .collation({ locale: "en_US", numericOrdering: true }); 
 
     const siteName = res.locals.siteName;
-    const type = manga.metadata.type ? (manga.metadata.type || 'Komik'): 'Komik';
+    const type = manga.metadata?.type || 'Komik';
 
     const seoDesc = `Baca ${type} ${manga.title} bahasa Indonesia lengkap di ${siteName}. ${type} ${manga.title} sub indo terupdate hanya di ${siteName}.`;
 
@@ -186,6 +181,7 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
       image: manga.thumb
     });
   } catch (err) {
+    console.error(err); // Log error ke console agar mudah debug
     res.status(500).send(err.message);
   }
 });
