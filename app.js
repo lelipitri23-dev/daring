@@ -157,19 +157,16 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
 
     if (!manga) return res.status(404).render('404');
 
-    // --- PERBAIKAN SORTING DI SINI ---
     const chapters = await Chapter.find({
       manga_id: manga._id
     })
-    // Gunakan -1 untuk chapter terbesar/terbaru di atas
-    // Gunakan 1 untuk chapter 1 di atas
-    .sort({ chapter_index: -1 }) 
-    // Numeric ordering memastikan angka dibaca sebagai angka, bukan teks
-    .collation({ locale: "en_US", numericOrdering: true }); 
+    // UBAH DI SINI: Gunakan 1 untuk Ascending (1, 2, 3...)
+    .sort({ chapter_index: 1 }) 
+    // Numeric ordering wajib agar 10 dianggap lebih besar dari 2
+    .collation({ locale: "en_US", numericOrdering: true });
 
     const siteName = res.locals.siteName;
-    const type = manga.metadata?.type || 'Komik';
-
+    const type = manga.metadata.type ? (manga.metadata.type || 'Komik'): 'Komik';
     const seoDesc = `Baca ${type} ${manga.title} bahasa Indonesia lengkap di ${siteName}. ${type} ${manga.title} sub indo terupdate hanya di ${siteName}.`;
 
     res.render('detail', {
@@ -181,7 +178,6 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
       image: manga.thumb
     });
   } catch (err) {
-    console.error(err); // Log error ke console agar mudah debug
     res.status(500).send(err.message);
   }
 });
