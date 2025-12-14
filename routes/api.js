@@ -167,7 +167,11 @@ router.get('/manga/:slug', async (req, res) => {
 
         const chapters = await Chapter.find({ manga_id: manga._id })
             .select('title slug chapter_index createdAt')
-            .sort({ chapter_index: -1 }) // Biasanya user ingin lihat chapter terbaru paling atas
+            // Gunakan -1 untuk Descending (Chapter Terbesar/Terbaru paling atas)
+            // Gunakan 1 untuk Ascending (Chapter 1 paling atas)
+            .sort({ chapter_index: -1 }) 
+            // PENTING: Tambahkan collation agar sorting angka akurat (tidak menjadi 1, 10, 2...)
+            .collation({ locale: "en_US", numericOrdering: true })
             .lean();
 
         // Gabungkan manual karena sudah .lean()
