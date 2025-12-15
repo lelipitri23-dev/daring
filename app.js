@@ -110,25 +110,27 @@ app.get('/', simpleCache(60), async (req, res) => {
     const totalManga = await Manga.countDocuments();
     const totalPages = Math.ceil(totalManga / limit);
 
-    // 1. Ambil Update Terbaru
+    // 1. Ambil Update Terbaru (FIXED: Gunakan updatedAt)
+    // Ini akan menampilkan manga yang baru saja discrape chapter barunya
     let recents = await Manga.find().sort({
-      createdAt: -1
+      updatedAt: -1 // <--- GANTI DARI createdAt JADI updatedAt
     }).skip(skip).limit(limit);
     recents = await attachChapterCounts(recents);
 
-    // 2. Ambil Trending
+    // 2. Ambil Trending (Tetap berdasarkan views tertinggi)
     let trending = await Manga.find().sort({
       views: -1
     }).limit(10);
     trending = await attachChapterCounts(trending);
 
-    // 3. Ambil Manhwa
+    // 3. Ambil Manhwa (FIXED: Gunakan updatedAt juga)
+    // Agar list Manhwa juga menampilkan update terbaru
     let manhwas = await Manga.find({
       'metadata.type': {
         $regex: 'manhwa', $options: 'i'
       }
     }).sort({
-      createdAt: -1
+      updatedAt: -1 // <--- GANTI DARI createdAt JADI updatedAt
     }).limit(24);
     manhwas = await attachChapterCounts(manhwas);
 
