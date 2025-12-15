@@ -68,25 +68,28 @@ router.get('/home', async (req, res) => {
         // Jalankan Query Count Total terpisah agar tidak blocking
         const totalMangaPromise = Manga.countDocuments();
 
-        // Query 1: Recents
+        // Query 1: Recents (UPDATED: Gunakan updatedAt agar chapter baru naik ke atas)
         const recentsPromise = Manga.find()
-            .select('title slug thumb metadata createdAt')
-            .sort({ createdAt: -1 })
+            // Tambahkan 'updatedAt' agar bisa dicek frontend
+            .select('title slug thumb metadata createdAt updatedAt') 
+            // GANTI: Sort berdasarkan waktu update terakhir (Chapter baru = Atas)
+            .sort({ updatedAt: -1 }) 
             .skip(skip)
             .limit(limit)
-            .lean(); // .lean() converts to plain JS object instantly
+            .lean(); 
 
-        // Query 2: Trending (Top Views)
+        // Query 2: Trending (Top Views) - Tetap sort by views
         const trendingPromise = Manga.find()
             .select('title slug thumb views metadata')
             .sort({ views: -1 })
             .limit(10)
             .lean();
 
-        // Query 3: Manhwa
+        // Query 3: Manhwa (UPDATED: Sort by updatedAt juga)
         const manhwasPromise = Manga.find({ 'metadata.type': { $regex: 'manhwa', $options: 'i' } })
-            .select('title slug thumb metadata')
-            .sort({ createdAt: -1 })
+            .select('title slug thumb metadata updatedAt')
+            // GANTI: Manhwa yang update chapter baru naik ke atas
+            .sort({ updatedAt: -1 }) 
             .limit(10)
             .lean();
 
