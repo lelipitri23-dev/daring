@@ -163,7 +163,10 @@ router.get('/manga/:slug', async (req, res) => {
         const manga = await Manga.findOneAndUpdate(
             { slug: req.params.slug },
             { $inc: { views: 1 } },
-            { new: true }
+            { 
+                new: true, 
+                timestamps: false // <--- TAMBAHKAN INI (Agar manga tidak loncat ke atas saat diklik)
+            }
         ).lean();
 
         if (!manga) return errorResponse(res, 'Manga not found', 404);
@@ -171,9 +174,8 @@ router.get('/manga/:slug', async (req, res) => {
         const chapters = await Chapter.find({ manga_id: manga._id })
             .select('title slug chapter_index createdAt')
             // Gunakan -1 untuk Descending (Chapter Terbesar/Terbaru paling atas)
-            // Gunakan 1 untuk Ascending (Chapter 1 paling atas)
             .sort({ chapter_index: -1 }) 
-            // PENTING: Tambahkan collation agar sorting angka akurat (tidak menjadi 1, 10, 2...)
+            // PENTING: Tambahkan collation agar sorting angka akurat
             .collation({ locale: "en_US", numericOrdering: true })
             .lean();
 
