@@ -152,7 +152,10 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
     const manga = await Manga.findOneAndUpdate(
       { slug: req.params.slug },
       { $inc: { views: 1 } },
-      { new: true }
+      { 
+        new: true, 
+        timestamps: false // <--- TAMBAHKAN INI (PENTING!)
+      }
     );
 
     if (!manga) return res.status(404).render('404');
