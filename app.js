@@ -148,34 +148,37 @@ app.get('/', simpleCache(60), async (req, res) => {
   }
 });
 
-// DETAIL PAGE - Cache 3 Menit (180 detik)
+// DETAIL PAGE - Cache 3 Menit
 app.get('/manga/:slug', simpleCache(180), async (req, res) => {
   try {
+    // 1. Ambil Data Manga
     const manga = await Manga.findOneAndUpdate(
       { slug: req.params.slug },
       { $inc: { views: 1 } },
-      { 
-        new: true, 
-        timestamps: false // PENTING: Agar manga tidak naik ke atas Home saat cuma dilihat
-      }
+      { new: true, timestamps: false }
     );
 
     if (!manga) return res.status(404).render('404');
 
-    const chapters = await Chapter.find({
+    // 2. Ambil Chapter (Tanpa Sorting Database dulu)
+    let chapters = await Chapter.find({
       manga_id: manga._id
-    })
-    // --- PERBAIKAN SORTING DI SINI ---
-    // Gunakan -1 untuk Descending (Chapter Terbesar/Terbaru paling atas: 22, 21, 20...)
-    // Gunakan 1 jika ingin Ascending (Chapter 1 paling atas: 1, 2, 3...)
-    .sort({ chapter_index: -1 }) 
-    
-    // Numeric ordering wajib agar 10 dianggap lebih besar dari 2
-    .collation({ locale: "en_US", numericOrdering: true });
+    }).lean();
+
+    // 3. SORTING MANUAL VIA JAVASCRIPT (Lebih Akurat & Kuat)
+    // Ini akan memaksa urutan angka matematika yang benar
+    chapters.sort((a, b) => {
+        // Ubah ke Float agar "22.5" terbaca sebagai angka, bukan teks
+        const numA = parseFloat(a.chapter_index) || 0;
+        const numB = parseFloat(b.chapter_index) || 0;
+        
+        // Rumus Descending (Besar ke Kecil: 22, 21, 20...)
+        return numB - numA; 
+    });
 
     const siteName = res.locals.siteName;
-    const type = manga.metadata.type ? (manga.metadata.type || 'Komik'): 'Komik';
-    const seoDesc = `Baca ${type} ${manga.title} bahasa Indonesia lengkap di ${siteName}. ${type} ${manga.title} sub indo terupdate hanya di ${siteName}.`;
+    const type = manga.metadata && manga.metadata.type ? manga.metadata.type : 'Komik';
+    const seoDesc = `Baca ${type} ${manga.title} bahasa Indonesia lengkap di ${siteName}.`;
 
     res.render('detail', {
       manga,
@@ -186,6 +189,7 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
       image: manga.thumb
     });
   } catch (err) {
+    console.error(err);
     res.status(500).send(err.message);
   }
 });
