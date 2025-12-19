@@ -156,7 +156,7 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
       { $inc: { views: 1 } },
       { 
         new: true, 
-        timestamps: false // <--- TAMBAHKAN INI (PENTING!)
+        timestamps: false // PENTING: Agar manga tidak naik ke atas Home saat cuma dilihat
       }
     );
 
@@ -165,8 +165,11 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
     const chapters = await Chapter.find({
       manga_id: manga._id
     })
-    // UBAH DI SINI: Gunakan 1 untuk Ascending (1, 2, 3...)
-    .sort({ chapter_index: 1 }) 
+    // --- PERBAIKAN SORTING DI SINI ---
+    // Gunakan -1 untuk Descending (Chapter Terbesar/Terbaru paling atas: 22, 21, 20...)
+    // Gunakan 1 jika ingin Ascending (Chapter 1 paling atas: 1, 2, 3...)
+    .sort({ chapter_index: -1 }) 
+    
     // Numeric ordering wajib agar 10 dianggap lebih besar dari 2
     .collation({ locale: "en_US", numericOrdering: true });
 
