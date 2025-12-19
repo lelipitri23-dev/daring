@@ -160,20 +160,20 @@ app.get('/manga/:slug', simpleCache(180), async (req, res) => {
 
     if (!manga) return res.status(404).render('404');
 
-    // 2. Ambil Chapter (Tanpa Sorting Database dulu)
+    // 2. Ambil Chapter (Tanpa Sorting Database)
     let chapters = await Chapter.find({
       manga_id: manga._id
     }).lean();
 
-    // 3. SORTING MANUAL VIA JAVASCRIPT (Lebih Akurat & Kuat)
-    // Ini akan memaksa urutan angka matematika yang benar
+    // 3. SORTING MANUAL JAVASCRIPT (ASCENDING: 1 -> 22)
     chapters.sort((a, b) => {
-        // Ubah ke Float agar "22.5" terbaca sebagai angka, bukan teks
+        // Ambil angkanya
         const numA = parseFloat(a.chapter_index) || 0;
         const numB = parseFloat(b.chapter_index) || 0;
         
-        // Rumus Descending (Besar ke Kecil: 22, 21, 20...)
-        return numB - numA; 
+        // Rumus Ascending (Kecil ke Besar): (A - B)
+        // Jika hasil negatif, A ditaruh sebelum B
+        return numA - numB; 
     });
 
     const siteName = res.locals.siteName;
