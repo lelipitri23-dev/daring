@@ -252,92 +252,11 @@
       <div class="h-screen flex flex-col items-center justify-center text-center px-4">
         <div class="text-6xl mb-4 opacity-50">📭</div>
         <h2 class="text-xl font-bold text-white mb-2">Database Kosong</h2>
-        <p class="text-gray-400 text-sm">Belum ada komik yang diinput. Silakan jalankan scraper.</p>
+        <p class="text-gray-400 text-sm">Belum ada komik yang diinput..</p>
       </div>
     <% } %>
 
   </main>
-
-  <div id="app-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0">
-    <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-[90%] max-w-sm relative overflow-hidden transform transition-all duration-300 scale-95">
-      
-      <button id="close-popup-btn" class="absolute top-3 right-3 text-gray-400 hover:text-white transition bg-gray-700/50 rounded-full p-1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </div>
-
-        <h3 class="text-xl font-bold text-white mb-2">Download Aplikasinya!</h3>
-        <p class="text-gray-400 text-sm mb-6 leading-relaxed">
-          Baca komik lebih cepat, bebas iklan, dan hemat kuota dengan aplikasi resmi kami.
-        </p>
-
-        <div class="flex flex-col gap-3">
-          <a href="/app" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
-            <span>Download Sekarang</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-          <button id="dismiss-popup-btn" class="text-gray-500 text-sm hover:text-gray-300 transition">
-            Nanti saja
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const popup = document.getElementById('app-popup');
-      const closeBtn = document.getElementById('close-popup-btn');
-      const dismissBtn = document.getElementById('dismiss-popup-btn');
-
-      // Cek apakah user sudah pernah menutup popup sebelumnya
-      const isPopupClosed = localStorage.getItem('hideAppPopup');
-
-      if (!isPopupClosed) {
-        // Tampilkan popup dengan delay sedikit agar smooth
-        popup.classList.remove('hidden');
-        setTimeout(() => {
-          popup.classList.remove('opacity-0');
-          popup.querySelector('div').classList.remove('scale-95');
-          popup.querySelector('div').classList.add('scale-100');
-        }, 100);
-      }
-
-      // Fungsi Menutup Popup
-      const closePopup = () => {
-        popup.classList.add('opacity-0');
-        popup.querySelector('div').classList.remove('scale-100');
-        popup.querySelector('div').classList.add('scale-95');
-        
-        // Simpan status ke localStorage agar tidak muncul lagi di browser ini
-        localStorage.setItem('hideAppPopup', 'true');
-
-        setTimeout(() => {
-          popup.classList.add('hidden');
-        }, 300); // Sesuaikan dengan duration-300 CSS
-      };
-
-      closeBtn.addEventListener('click', closePopup);
-      dismissBtn.addEventListener('click', closePopup);
-
-      // Tutup jika klik di luar area kartu (background gelap)
-      popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
-          closePopup();
-        }
-      });
-    });
-  </script>
 
   <%- include('footer') %>
 </body>
