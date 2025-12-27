@@ -14,7 +14,6 @@
 <% } else { %>
     <link rel="canonical" href="<%= siteUrl %><%= currentUrl %>" />
 <% } %>
-    <link rel="amphtml" href="https://sekaikomikapk.web.app/"/>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="mobile-web-app-capable" content="yes">
@@ -26,7 +25,7 @@
            metaImage = image;
        } else {
            // Jika tidak ada, pakai logo default website
-           metaImage = (typeof siteUrl !== 'undefined' ? siteUrl : '') + '/favicon.webp';
+           metaImage = (typeof siteUrl !== 'undefined' ? siteUrl : '') + '/favicon.png';
        }
     %>
     <!-- Open Graph dan Twitter Card -->
@@ -48,11 +47,11 @@
     <meta name="twitter:image" content="<%= metaImage %>" />
     <meta name="twitter:image:alt" content="<%= title %>" />
 
-    <link rel="icon" href="<%= siteUrl %>/favicon.webp" sizes="32x32" />
-    <link rel="icon" type="image/png" sizes="16x16" href="<%= siteUrl %>/favicon.webp">
-    <link rel="icon" href="<%= siteUrl %>/favicon.webp" sizes="192x192" />
-    <link rel="apple-touch-icon" href="<%= siteUrl %>/favicon.webp" />
-    <meta name="msapplication-TileImage" content="<%= siteUrl %>/favicon.webp" />
+    <link rel="icon" href="<%= siteUrl %>/favicon.png" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= siteUrl %>/favicon.png">
+    <link rel="icon" href="<%= siteUrl %>/favicon.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="<%= siteUrl %>/favicon.png" />
+    <meta name="msapplication-TileImage" content="<%= siteUrl %>/favicon.png" />
     <link rel="dns-prefetch" href="//cdn-images.doujindesu.fun/">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com/">
 
@@ -77,3 +76,4 @@
         .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
+
