@@ -163,10 +163,7 @@ router.get('/manga/:slug', async (req, res) => {
         const manga = await Manga.findOneAndUpdate(
             { slug: req.params.slug },
             { $inc: { views: 1 } },
-            { 
-                new: true, 
-                timestamps: false // <--- TAMBAHKAN INI (Agar manga tidak loncat ke atas saat diklik)
-            }
+            { new: true, timestamps: false }
         ).lean();
 
         if (!manga) return errorResponse(res, 'Manga not found', 404);
@@ -210,12 +207,12 @@ router.get('/read/:slug/:chapterSlug', async (req, res) => {
             Chapter.findOne({ 
                 manga_id: manga._id, 
                 chapter_index: { $gt: chapter.chapter_index } 
-            }).sort({ chapter_index: 1 }).select('slug title').lean(),
+            }).sort({ chapter_index: -1 }).select('slug title').lean(),
             
             Chapter.findOne({ 
                 manga_id: manga._id, 
                 chapter_index: { $lt: chapter.chapter_index } 
-            }).sort({ chapter_index: -1 }).select('slug title').lean()
+            }).sort({ chapter_index: 1 }).select('slug title').lean()
         ]);
 
         successResponse(res, { 
