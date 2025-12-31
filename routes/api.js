@@ -185,6 +185,7 @@ router.get('/manga/:slug', async (req, res) => {
     }
 });
 
+
 // GET /api/read/:slug/:chapterSlug
 router.get('/read/:slug/:chapterSlug', async (req, res) => {
     try {
@@ -200,21 +201,24 @@ router.get('/read/:slug/:chapterSlug', async (req, res) => {
         }).lean();
 
         if (!chapter) return errorResponse(res, 'Chapter not found', 404);
-
-        // Navigasi Smart: Menggunakan $gt dan $lt untuk mencari chapter tetangga
-        // Ini menangani kasus jika index loncat (misal ch 1, lalu ch 1.5, lalu ch 2)
         const [nextChap, prevChap] = await Promise.all([
             Chapter.findOne({ 
                 manga_id: manga._id, 
                 chapter_index: { $gt: chapter.chapter_index } 
-            }).sort({ chapter_index: -1 }).select('slug title').lean(),
-            
+            })
+            .sort({ chapter_index: 1 })
+            .select('slug title')
+            .collation({ locale: "en_US", numericOrdering: true }) 
+            .lean(),
             Chapter.findOne({ 
                 manga_id: manga._id, 
                 chapter_index: { $lt: chapter.chapter_index } 
-            }).sort({ chapter_index: 1 }).select('slug title').lean()
+            })
+            .sort({ chapter_index: -1 })
+            .select('slug title')
+            .collation({ locale: "en_US", numericOrdering: true })
+            .lean()
         ]);
-
         successResponse(res, { 
             chapter, 
             manga, 
@@ -227,6 +231,7 @@ router.get('/read/:slug/:chapterSlug', async (req, res) => {
         errorResponse(res, err.message);
     }
 });
+
 
 // ==========================================
 // 3. SEARCH & FILTERS
