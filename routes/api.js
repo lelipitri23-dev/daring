@@ -298,14 +298,11 @@ router.get('/filter/:type/:value', async (req, res) => {
         let query = {};
 
         if (type === 'genre') {
-            // Perbaikan regex untuk menangani spasi atau dash
-            // misal: 'action-adventure' bisa match 'Action Adventure'
             const cleanValue = value.replace(/-/g, '[\\s\\-]'); 
             query = { tags: { $regex: new RegExp(cleanValue, 'i') } };
         } else if (type === 'status') {
             query = { 'metadata.status': { $regex: `^${value}$`, $options: 'i' } };
         } else if (type === 'type') {
-            // Perbaikan path: biasanya metadata.type langsung string, bukan object
             query = { 'metadata.type': { $regex: `^${value}$`, $options: 'i' } };
         } else {
             return errorResponse(res, 'Invalid filter type. Use: genre, status, or type.', 400);
@@ -314,7 +311,8 @@ router.get('/filter/:type/:value', async (req, res) => {
         const [total, mangasRaw] = await Promise.all([
             Manga.countDocuments(query),
             Manga.find(query)
-                .select('title slug thumb metadata')
+                .sort({ updatedAt: -1 })
+                .select('title slug thumb metadata updatedAt')
                 .skip(skip)
                 .limit(limit)
                 .lean()
