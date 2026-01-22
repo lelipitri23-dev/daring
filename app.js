@@ -648,7 +648,6 @@ app.get('/robots.txt', (req, res) => {
 `User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /read/
 Disallow: /search
 
 Sitemap: ${baseUrl}/sitemap_index.xml`
