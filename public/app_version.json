@@ -1,18 +1,13 @@
 {
-    "latest_version": "11.0.0",
+    "latest_version": "12.0.0",
     "update_url": "https://doujindesu.fun",
     "is_force_update": true,
     "whats_new": [
-        "Perbaikan Chapter List",
+        "Penambahan Fitur Anime",
+        "Penambahan Fitur Nonton",
         "Perbaikan Chapter Reader",
         "Penambahan Chapter History",
         "Penambahan Lanjut Baca Chapter",
-        "Dukungan penuh untuk Android 14+",
-        "Perbaikan bug login via Google",
-        "Perbaikan tata letak profile di Android 12+",
-        "Sistem keamanan sertifikat baru",
-        "Penambahan tombol clear bookmark",
-        "Placeholder gambar profil default",
-        "Redesain komentar di halaman detail"
+        "Dukungan penuh untuk Android 14+"
     ]
 }
