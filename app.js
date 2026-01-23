@@ -12,6 +12,15 @@ const Chapter = require('./models/Chapter');
 const apiRoutes = require('./routes/api');
 
 const app = express();
+
+app.use((req, res, next) => {
+  const userAgent = req.headers['user-agent'] || '';
+  if (/meta-externalagent|facebookexternalhit|facebot/i.test(userAgent)) {
+    return res.status(403).send('403 Forbidden');
+  }
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 const WEBSITE_URL = process.env.SITE_URL || `http://localhost:${PORT}`;
 
