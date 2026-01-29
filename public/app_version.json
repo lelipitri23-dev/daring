@@ -1,13 +1,14 @@
 {
-    "latest_version": "12.0.0",
+    "latest_version": "13.0.0",
     "update_url": "https://doujindesu.fun",
     "is_force_update": true,
     "whats_new": [
-        "Penambahan Fitur Anime",
-        "Penambahan Fitur Nonton",
-        "Perbaikan Chapter Reader",
-        "Penambahan Chapter History",
-        "Penambahan Lanjut Baca Chapter",
-        "Dukungan penuh untuk Android 14+"
+        "Bebas Iklan (No Ads)",
+        "Tampilan Baru: Dark Mode",
+        "Fitur Download & Mode Offline",
+        "Infinite Scroll: Scroll bawah untuk Next, atas untuk Prev",
+        "Reader Fullscreen (Ketuk 2x)",
+        "Smart Resume & Riwayat Bacaan",
+        "Peningkatan Performa Reader"
     ]
 }
